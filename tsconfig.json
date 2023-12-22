@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "outDir": "dist",
+    "rootDirs": [
+      "src",
+      "tests"
+    ],
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "strict": true,
+    "baseUrl": "src",
+    "paths": {
+      "@/*": [
+        "*"
+      ],
+      "@/tests/*": [
+        "../tests/*"
+      ]
+    }
+  }
+}
