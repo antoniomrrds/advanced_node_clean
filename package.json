@@ -20,7 +20,7 @@
     "name": "Antonio marcos",
     "email": "antoniomarcos.amrrds@gmail.com"
   },
-  "license": "ISC",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@types/jest": "^29.5.11",
     "@types/module-alias": "^2.0.4",
