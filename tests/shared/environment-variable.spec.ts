@@ -1,5 +1,13 @@
-import { getOrDefaultEnvironmentVariable } from '@/shared'
+import { EnvironmentVariableGetter, getOrDefaultEnvironmentVariable } from '@/shared'
 
+type SutTypes = {
+  sut: EnvironmentVariableGetter
+}
+
+const makeSut = (value: string): SutTypes => {
+  const sut = getOrDefaultEnvironmentVariable(value)
+  return { sut }
+}
 describe('getOrDefaultEnvironmentVariable', () => {
   beforeEach(() => {
     process.env.TEST = 'any_value'
@@ -10,7 +18,7 @@ describe('getOrDefaultEnvironmentVariable', () => {
   })
 
   it('should return the value of an existing environment variable', () => {
-    const result = getOrDefaultEnvironmentVariable('TEST')
-    expect(result).toEqual('any_value')
+    const { sut } = makeSut('TEST')
+    expect(sut).toEqual('any_value')
   })
 })

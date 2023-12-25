@@ -1,6 +1,8 @@
+export type EnvironmentVariableGetter = string
+
 export const getOrDefaultEnvironmentVariable = (
   environmentVariable: string
-): string => {
+): EnvironmentVariableGetter => {
   const value = process.env[environmentVariable]
   return value!
 }
