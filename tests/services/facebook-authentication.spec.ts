@@ -1,7 +1,8 @@
 import {
   CreateFacebookAccountRepository,
   LoadFacebookUserApi,
-  LoadUserAccountRepository
+  LoadUserAccountRepository,
+  UpdateFacebookAccountRepository
 } from '@/application/ports'
 import { FacebookAuthenticationService } from '@/application/services'
 import { AuthenticationError } from '@/domain/errors'
@@ -9,9 +10,7 @@ import { MockProxy, mock } from 'jest-mock-extended'
 
 describe('FacebookAuthenticationService', () => {
   let facebookApi: MockProxy<LoadFacebookUserApi>
-  let userAccountRepo: MockProxy<
-  LoadUserAccountRepository & CreateFacebookAccountRepository
-  >
+  let userAccountRepo: MockProxy<LoadUserAccountRepository & CreateFacebookAccountRepository & UpdateFacebookAccountRepository>
   let sut: FacebookAuthenticationService
   const token = 'any_token'
   beforeEach(() => {
@@ -43,7 +42,7 @@ describe('FacebookAuthenticationService', () => {
     })
     expect(userAccountRepo.load).toHaveBeenCalledTimes(1)
   })
-  it('should call CreateFacebookAccountRepository  when LoadUserAccountRepository returns undefined', async () => {
+  it('should call CreateFacebookAccountRepository when LoadUserAccountRepository returns undefined', async () => {
     userAccountRepo.load.mockResolvedValueOnce(undefined)
     await sut.perform({ token })
     expect(userAccountRepo.createFromFacebook).toHaveBeenCalledWith({
@@ -52,5 +51,19 @@ describe('FacebookAuthenticationService', () => {
       facebookId: 'any_fb_id'
     })
     expect(userAccountRepo.createFromFacebook).toHaveBeenCalledTimes(1)
+  })
+  it('Should call UpdateFacebookAccountRepository when LoadUserAccountRepository returns data', async () => {
+    userAccountRepo.load.mockResolvedValueOnce({
+      id: 'any_id',
+      name: 'any_name'
+    })
+
+    await sut.perform({ token })
+    expect(userAccountRepo.updateWithFacebook).toHaveBeenCalledWith({
+      id: 'any_id',
+      name: 'any_name',
+      facebookId: 'any_fb_id'
+    })
+    expect(userAccountRepo.updateWithFacebook).toHaveBeenCalledTimes(1)
   })
 })
