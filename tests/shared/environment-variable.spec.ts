@@ -36,4 +36,9 @@ describe('getOrDefaultEnvironmentVariable', () => {
     const { sut } = makeSut('TEST', 'default_value')
     expect(sut).toEqual('default_value')
   })
+  it('should return an error if the environment variable is empty and no default value is provided', () => {
+    process.env.TEST = ''
+    const { sut } = makeSut('TEST')
+    expect(sut).toEqual(new EnvironmentVariableError('TEST'))
+  })
 })
