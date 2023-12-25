@@ -1,4 +1,5 @@
 import { EnvironmentVariableGetter, getOrDefaultEnvironmentVariable } from '@/shared'
+import { EnvironmentVariableError } from '@/shared/errors'
 
 type SutTypes = {
   sut: EnvironmentVariableGetter
@@ -24,5 +25,9 @@ describe('getOrDefaultEnvironmentVariable', () => {
   it('should return the default value if the environment variable is not defined', () => {
     const { sut } = makeSut('NON_EXISTENT_VARIABLE', 'default_value')
     expect(sut).toEqual('default_value')
+  })
+  it('should return an error if the environment variable is not defined and no default value is provided', () => {
+    const { sut } = makeSut('NON_EXISTENT_VARIABLE')
+    expect(sut).toEqual(new EnvironmentVariableError('NON_EXISTENT_VARIABLE'))
   })
 })
