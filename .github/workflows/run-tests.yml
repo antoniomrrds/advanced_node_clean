@@ -1,0 +1,34 @@
+name: Code Coverage
+
+on: [push]
+
+jobs:
+  run-tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # baixar o codigo do app no ubuntu
+      - uses: actions/setup-node@v3   # configurar o Nodejs
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      # instalar as dependencias sem interacao
+      - run: |
+          npm ci
+          npm run test:ci
+          cat ./coverage/lcov.info
+      # enviar o relatorio de cobertura de codigo para o coveralls
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # enviar o relatorio de cobertura de codigo para o codecov
+      - name: Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+
+
+
