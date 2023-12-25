@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import { EnvironmentVariableError } from '@/shared/errors'
 
 export type EnvironmentVariableGetter = string | Error | undefined
@@ -7,9 +8,8 @@ export const getOrDefaultEnvironmentVariable = (
   defaultValue?: string
 ): EnvironmentVariableGetter => {
   const value = process.env[environmentVariable]
-  if (!value && defaultValue) return defaultValue
-  if (!value && !defaultValue) {
-    return new EnvironmentVariableError(environmentVariable)
-  }
-  return value
+  return (
+    value ||
+    (defaultValue || new EnvironmentVariableError(environmentVariable))
+  )
 }
