@@ -3,10 +3,20 @@ import { HttpGetClient } from '@/infrastructure/http'
 
 export class FacebookApi {
   private readonly BASEURL = 'https://graph.facebook.com'
-  constructor (private readonly httpClient: HttpGetClient) {}
+  constructor (
+    private readonly httpClient: HttpGetClient,
+    private readonly clientId: string,
+    private readonly clientSecret: string
+  ) {}
+
   async loadUser (params: LoadFacebookUserApi.Params): Promise<void> {
     await this.httpClient.get({
-      url: `${this.BASEURL}/oauth/access_token`
+      url: `${this.BASEURL}/oauth/access_token`,
+      params: {
+        clientId: this.clientId,
+        clientSecret: this.clientSecret,
+        grant_type: 'client_credentials'
+      }
     })
   }
 }
