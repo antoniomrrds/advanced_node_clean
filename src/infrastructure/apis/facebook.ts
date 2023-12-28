@@ -1,7 +1,7 @@
 import { LoadFacebookUserApi } from '@/application/ports'
 import { HttpGetClient } from '@/infrastructure/http'
 
-export class FacebookApi {
+export class FacebookApi implements LoadFacebookUserApi {
   private readonly BASEURL = 'https://graph.facebook.com'
   constructor (
     private readonly httpClient: HttpGetClient,
@@ -9,8 +9,17 @@ export class FacebookApi {
     private readonly clientSecret: string
   ) {}
 
-  async loadUser (params: LoadFacebookUserApi.Params): Promise<void> {
-    const appToken = await this.httpClient.get({
+  async loadUser (params: LoadFacebookUserApi.Params): Promise<LoadFacebookUserApi.Result> {
+    const userInfo = await this.getUserInfo(params.token)
+    return {
+      facebookId: userInfo.id,
+      name: userInfo.name,
+      email: userInfo.email
+    }
+  }
+
+  private async getAppToken (): Promise<{ access_token: string }> {
+    return this.httpClient.get({
       url: `${this.BASEURL}/oauth/access_token`,
       params: {
         clientId: this.clientId,
@@ -18,19 +27,26 @@ export class FacebookApi {
         grant_type: 'client_credentials'
       }
     })
+  }
 
-    const debugToken = await this.httpClient.get({
+  private async getDebugToken (clientToken: string): Promise<{ data: { user_id: string } }> {
+    const { access_token: accessToken } = await this.getAppToken()
+    return await this.httpClient.get({
       url: `${this.BASEURL}/debug_token`,
       params: {
-        access_token: appToken.access_token,
-        input_token: params.token
+        access_token: accessToken,
+        input_token: clientToken
       }
     })
-    await this.httpClient.get({
-      url: `${this.BASEURL}/${debugToken.data.user_id}`,
+  }
+
+  private async getUserInfo (clientToken: string): Promise<{ id: string, name: string, email: string }> {
+    const { data: { user_id: userId } } = await this.getDebugToken(clientToken)
+    return this.httpClient.get({
+      url: `${this.BASEURL}/${userId}`,
       params: {
         fields: ['id', 'name', 'email'].join(','),
-        access_token: params.token
+        access_token: clientToken
       }
     })
   }
