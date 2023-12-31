@@ -41,6 +41,41 @@ describe('PgUserAccountRepository', () => {
 
       const account = await sut.load({ email: 'existing_email' })
       expect(account).toEqual({ id: '1' })
+      await dataSource.destroy()
+    })
+    it('Should return undefined if email does not exist', async () => {
+      const db = newDb({ autoCreateForeignKeyIndices: true })
+
+      db.public.registerFunction({
+        name: 'current_database',
+        args: [],
+        returns: DataType.text,
+        implementation: (x) => `hello world: ${x}`
+      })
+
+      db.public.registerFunction({
+        name: 'version',
+        args: [],
+        returns: DataType.text,
+        implementation: (x) => `hello world: ${x}`
+      })
+
+      const dataSource = db.adapters.createTypeormDataSource({
+        type: 'postgres',
+        entities: [PgUser]
+      })
+      // Initialize datasource
+
+      await dataSource.initialize()
+      // create schema
+
+      await dataSource.synchronize()
+
+      const sut = new PgUserAccountRepository(dataSource)
+
+      const account = await sut.load({ email: 'new_email' })
+      expect(account).toBeUndefined()
+      await dataSource.destroy()
     })
   })
 })
