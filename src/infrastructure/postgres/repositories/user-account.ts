@@ -1,4 +1,4 @@
-import { LoadUserAccountRepository } from '@/application/ports'
+import { LoadUserAccountRepository, SaveFacebookAccountRepository } from '@/application/ports'
 
 import { DataSource, Repository } from 'typeorm'
 import { PgUser } from '@/infrastructure/postgres/entities'
@@ -15,5 +15,13 @@ export class PgUserAccountRepository implements LoadUserAccountRepository {
     if (pgUser) {
       return { id: pgUser.id.toString(), name: pgUser.name ?? undefined }
     }
+  }
+
+  async saveWithFacebook (params: SaveFacebookAccountRepository.Params): Promise<void> {
+    await this.pgUserRepos.save({
+      email: params.email,
+      name: params.name,
+      facebookId: params.facebookId
+    })
   }
 }
