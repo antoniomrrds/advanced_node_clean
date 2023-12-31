@@ -1,55 +1,31 @@
 import { PgUser } from '@/infrastructure/postgres/entities'
 import { PgUserAccountRepository } from '@/infrastructure/postgres/repositories'
 import { DataSource, Repository } from 'typeorm'
-import { DataType, newDb, IMemoryDb, IBackup } from 'pg-mem'
+import { IBackup } from 'pg-mem'
+import { makeFakeDb } from '@/tests/infrastructure/postgres/mocks'
 
 describe('PgUserAccountRepository', () => {
-  let dataSource: DataSource
+  let PostgresDataSource: DataSource
 
   describe('load', () => {
     let sut: PgUserAccountRepository
     let pgUserRepos: Repository<PgUser>
-    let db: IMemoryDb
     let backup: IBackup
 
     beforeAll(async () => {
-      db = newDb({ autoCreateForeignKeyIndices: true })
-
-      db.public.registerFunction({
-        name: 'current_database',
-        args: [],
-        returns: DataType.text,
-        implementation: (x) => `hello world: ${x}`
-      })
-
-      db.public.registerFunction({
-        name: 'version',
-        args: [],
-        returns: DataType.text,
-        implementation: (x) => `hello world: ${x}`
-      })
-
-      dataSource = db.adapters.createTypeormDataSource({
-        type: 'postgres',
-        entities: [PgUser]
-      })
-      // Initialize datasource
-
-      await dataSource.initialize()
-      // create schema
-
-      await dataSource.synchronize()
+      const { db, dataSource } = await makeFakeDb()
+      PostgresDataSource = dataSource
       backup = db.backup()
-      pgUserRepos = dataSource.getRepository(PgUser)
+      pgUserRepos = PostgresDataSource.getRepository(PgUser)
     })
 
     beforeEach(() => {
       backup.restore()
-      sut = new PgUserAccountRepository(dataSource)
+      sut = new PgUserAccountRepository(PostgresDataSource)
     })
 
     afterAll(async () => {
-      await dataSource.destroy()
+      await PostgresDataSource.destroy()
     })
     it('Should return an account if email exists', async () => {
       // create schema
