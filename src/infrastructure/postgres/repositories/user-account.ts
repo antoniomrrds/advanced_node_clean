@@ -8,7 +8,7 @@ type loadResult = LoadUserAccountRepository.Result
 type saveParams = SaveFacebookAccountRepository.Params
 type saveResult = SaveFacebookAccountRepository.Result
 
-export class PgUserAccountRepository implements LoadUserAccountRepository {
+export class PgUserAccountRepository implements LoadUserAccountRepository, SaveFacebookAccountRepository {
   private readonly pgUserRepos: Repository<PgUser>
 
   constructor (dataSource: DataSource) {
