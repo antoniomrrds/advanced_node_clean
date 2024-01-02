@@ -1,3 +1,4 @@
+import { AccessToken } from '@/domain/entities'
 import { AuthenticationError } from '@/domain/errors'
 import { FacebookAuthentication } from '@/domain/features'
 import { FacebookLoginController } from '@/presentation/controllers'
@@ -12,6 +13,7 @@ describe('FacebookLoginController', () => {
   })
   beforeAll(() => {
     facebookAuth = mock()
+    facebookAuth.perform.mockResolvedValue(new AccessToken('any_value'))
   })
   it('Should return 400 if token is empty', async () => {
     const httpResponse = await sut.handle({})
@@ -51,6 +53,15 @@ describe('FacebookLoginController', () => {
     expect(httpResponse).toEqual({
       statusCode: 401,
       data: new AuthenticationError()
+    })
+  })
+  it('Should return 200 if authentication succeeds', async () => {
+    const httpResponse = await sut.handle({ token: 'any_token' })
+    expect(httpResponse).toEqual({
+      statusCode: 200,
+      data: {
+        accessToken: 'any_value'
+      }
     })
   })
 })
