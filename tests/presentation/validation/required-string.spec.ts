@@ -24,4 +24,11 @@ describe('RequiredStringValidatior', () => {
 
     expect(error).toStrictEqual(new RequiredFieldError('any_field'))
   })
+  it('Should return undefined if value is not empty', () => {
+    const sut = new RequiredStringValidator('any_value', 'any_field')
+
+    const error = sut.validate()
+
+    expect(error).toBeUndefined()
+  })
 })
