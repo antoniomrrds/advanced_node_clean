@@ -2,7 +2,7 @@ import { AccessToken } from '@/domain/entities'
 import { AuthenticationError } from '@/domain/errors'
 import { FacebookAuthentication } from '@/domain/features'
 import { FacebookLoginController } from '@/presentation/controllers'
-import { ServerError } from '@/presentation/errors'
+import { RequiredFieldError, ServerError, UnauthorizedError } from '@/presentation/errors'
 import { MockProxy, mock } from 'jest-mock-extended'
 
 describe('FacebookLoginController', () => {
@@ -21,7 +21,7 @@ describe('FacebookLoginController', () => {
 
     expect(httpResponse).toEqual({
       statusCode: 400,
-      data: new Error('The field token is required')
+      body: new Error('The field token is required')
     })
   })
   it('Should return 400 if token is null', async () => {
@@ -30,7 +30,7 @@ describe('FacebookLoginController', () => {
     expect(httpResponse).toEqual({
       statusCode: 400,
 
-      data: new Error('The field token is required')
+      body: new RequiredFieldError('token')
     })
   })
   it('Should return 400 if token is undefined', async () => {
@@ -38,7 +38,7 @@ describe('FacebookLoginController', () => {
 
     expect(httpResponse).toEqual({
       statusCode: 400,
-      data: new Error('The field token is required')
+      body: new RequiredFieldError('token')
     })
   })
   it('Should call FacebookAuthentication with correct params', async () => {
@@ -53,14 +53,14 @@ describe('FacebookLoginController', () => {
 
     expect(httpResponse).toEqual({
       statusCode: 401,
-      data: new AuthenticationError()
+      body: new UnauthorizedError()
     })
   })
   it('Should return 200 if authentication succeeds', async () => {
     const httpResponse = await sut.handle({ token: 'any_token' })
     expect(httpResponse).toEqual({
       statusCode: 200,
-      data: {
+      body: {
         accessToken: 'any_value'
       }
     })
@@ -73,7 +73,7 @@ describe('FacebookLoginController', () => {
 
     expect(httpResponse).toEqual({
       statusCode: 500,
-      data: new ServerError(error)
+      body: new ServerError(error)
     })
   })
 })
