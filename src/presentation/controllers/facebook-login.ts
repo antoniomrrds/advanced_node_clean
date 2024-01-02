@@ -8,7 +8,7 @@ type HttpRequest = { token: string }
 
 type Model = Error | { accessToken: string }
 export class FacebookLoginController {
-  constructor (private readonly facebookAuth: FacebookAuthentication) {}
+  constructor (private readonly facebookAuth: FacebookAuthentication) { }
   async handle (httpRequest: HttpRequest): Promise<HttpResponse<Model>> {
     try {
       const error = this.validate(httpRequest)

@@ -4,9 +4,11 @@ export class RequiredStringValidator {
   constructor (
     private readonly value: string,
     private readonly fieldName: string
-  ) {}
+  ) { }
 
   validate (): Error | undefined {
-    return new RequiredFieldError(this.fieldName)
+    if ([undefined, null, ''].includes(this.value)) {
+      return new RequiredFieldError(this.fieldName)
+    }
   }
 }
