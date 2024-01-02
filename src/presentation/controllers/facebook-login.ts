@@ -1,3 +1,4 @@
+import { AccessToken } from '@/domain/entities'
 import { FacebookAuthentication } from '@/domain/features'
 import { HttpResponse } from '@/presentation/ports'
 
@@ -12,9 +13,18 @@ export class FacebookLoginController {
       }
     }
     const result = await this.facebookAuth.perform({ token: httpRequest.token })
-    return {
-      statusCode: 401,
-      data: result
+    if (result instanceof AccessToken) {
+      return {
+        statusCode: 200,
+        data: {
+          accessToken: result.value
+        }
+      }
+    } else {
+      return {
+        statusCode: 401,
+        data: result
+      }
     }
   }
 }
