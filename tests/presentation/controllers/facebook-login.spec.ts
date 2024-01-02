@@ -1,12 +1,18 @@
 import { FacebookAuthentication } from '@/domain/features'
 import { FacebookLoginController } from '@/presentation/controllers'
-import { mock } from 'jest-mock-extended'
+import { MockProxy, mock } from 'jest-mock-extended'
 
 describe('FacebookLoginController', () => {
-  it('Should return 400 if token is empty', async () => {
-    const facebookAuth = mock<FacebookAuthentication>()
-    const sut = new FacebookLoginController(facebookAuth)
+  let facebookAuth: MockProxy<FacebookAuthentication>
+  let sut: FacebookLoginController
 
+  beforeEach(() => {
+    sut = new FacebookLoginController(facebookAuth)
+  })
+  beforeAll(() => {
+    facebookAuth = mock()
+  })
+  it('Should return 400 if token is empty', async () => {
     const httpResponse = await sut.handle({})
 
     expect(httpResponse).toEqual({
@@ -15,9 +21,6 @@ describe('FacebookLoginController', () => {
     })
   })
   it('Should return 400 if token is null', async () => {
-    const facebookAuth = mock<FacebookAuthentication>()
-    const sut = new FacebookLoginController(facebookAuth)
-
     const httpResponse = await sut.handle({ token: null })
 
     expect(httpResponse).toEqual({
@@ -27,9 +30,6 @@ describe('FacebookLoginController', () => {
     })
   })
   it('Should return 400 if token is undefined', async () => {
-    const facebookAuth = mock<FacebookAuthentication>()
-    const sut = new FacebookLoginController(facebookAuth)
-
     const httpResponse = await sut.handle({ token: undefined })
 
     expect(httpResponse).toEqual({
@@ -38,9 +38,6 @@ describe('FacebookLoginController', () => {
     })
   })
   it('Should call FacebookAuthentication with correct params', async () => {
-    const facebookAuth = mock<FacebookAuthentication>()
-    const sut = new FacebookLoginController(facebookAuth)
-
     await sut.handle({ token: 'any_token' })
 
     expect(facebookAuth.perform).toHaveBeenCalledWith({ token: 'any_token' })
