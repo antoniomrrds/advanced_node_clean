@@ -17,7 +17,9 @@ describe('FacebookLoginController', () => {
     facebookAuth.perform.mockResolvedValue(new AccessToken('any_value'))
   })
   it('Should return 400 if token is empty', async () => {
-    const httpResponse = await sut.handle({})
+    const httpResponse = await sut.handle({
+      token: ''
+    })
 
     expect(httpResponse).toEqual({
       statusCode: 400,
