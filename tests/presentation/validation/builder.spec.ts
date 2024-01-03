@@ -3,7 +3,7 @@ import { RequiredStringValidator, ValidationBuilder } from '@/presentation/valid
 describe('ValidationBuilder', () => {
   it('should return RequiredStringValidator', () => {
     const validators = ValidationBuilder
-      .of({ value: 'any_value', filedName: 'any_name' })
+      .of({ value: 'any_value', fieldName: 'any_name' })
       .required()
       .build()
 
