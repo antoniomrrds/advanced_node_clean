@@ -1,29 +1,24 @@
 import { AccessToken } from '@/domain/entities'
 import { FacebookAuthentication } from '@/domain/features'
 import { HttpResponse } from '@/presentation/ports'
-import { badRequest, ok, serverError, unauthorized } from '@/presentation/helpers'
-import { ValidationComposite, ValidationBuilder } from '@/presentation/validation'
+import { ok, unauthorized } from '@/presentation/helpers'
+import { ValidationBuilder, Validator } from '@/presentation/validation'
+import { Controller } from '@/presentation/controllers'
 
 type HttpRequest = { token: string }
 
 type Model = Error | { accessToken: string }
-export class FacebookLoginController {
-  constructor (private readonly facebookAuth: FacebookAuthentication) { }
-  async handle (httpRequest: HttpRequest): Promise<HttpResponse<Model>> {
-    try {
-      const error = this.validate(httpRequest)
-      return (error)
-        ? badRequest(error)
-        : await this.performFacebookAuth(httpRequest)
-    } catch (error) {
-      return serverError(error)
-    }
+export class FacebookLoginController extends Controller {
+  constructor (private readonly facebookAuth: FacebookAuthentication) {
+    super()
   }
 
-  private validate (httpRequest: HttpRequest): Error | undefined {
-    return new ValidationComposite([
-      ...ValidationBuilder.of({ value: httpRequest.token, fieldName: 'token' }).required().build()
-    ]).validate()
+  async perform (httpRequest: HttpRequest): Promise<HttpResponse<Model>> {
+    return await this.performFacebookAuth(httpRequest)
+  }
+
+  override buildValidators (httpRequest: HttpRequest): Validator[] {
+    return [...ValidationBuilder.of({ value: httpRequest.token, fieldName: 'token' }).required().build()]
   }
 
   private async performFacebookAuth ({ token }: HttpRequest): Promise<HttpResponse<Model>> {
