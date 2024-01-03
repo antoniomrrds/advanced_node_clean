@@ -12,16 +12,9 @@ export class FacebookLoginController {
   async handle (httpRequest: HttpRequest): Promise<HttpResponse<Model>> {
     try {
       const error = this.validate(httpRequest)
-      if (error) {
-        return badRequest(error)
-      }
-
-      const accessToken = await this.facebookAuth.perform({ token: httpRequest.token })
-      if (accessToken instanceof AccessToken) {
-        return ok({ accessToken: accessToken.value })
-      } else {
-        return unauthorized()
-      }
+      return (error)
+        ? badRequest(error)
+        : await this.performFacebookAuth(httpRequest)
     } catch (error) {
       return serverError(error)
     }
@@ -31,5 +24,12 @@ export class FacebookLoginController {
     return new ValidationComposite([
       ...ValidationBuilder.of({ value: httpRequest.token, fieldName: 'token' }).required().build()
     ]).validate()
+  }
+
+  private async performFacebookAuth ({ token }: HttpRequest): Promise<HttpResponse<Model>> {
+    const accessToken = await this.facebookAuth.perform({ token })
+    return (accessToken instanceof AccessToken)
+      ? ok({ accessToken: accessToken.value })
+      : unauthorized()
   }
 }
