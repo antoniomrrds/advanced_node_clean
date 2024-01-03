@@ -7,8 +7,8 @@ export class ValidationBuilder {
     private readonly validators: Validator[] = []
   ) {}
 
-  static of ({ value, filedName }: { value: string, filedName: string }): ValidationBuilder {
-    return new ValidationBuilder(value, filedName)
+  static of ({ value, fieldName }: { value: string, fieldName: string }): ValidationBuilder {
+    return new ValidationBuilder(value, fieldName)
   }
 
   required (): this {
