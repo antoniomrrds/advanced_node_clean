@@ -13,6 +13,7 @@
     "test:staged": "npm test -- --findRelatedTests",
     "test:ci": "npm test -- --coverage",
     "test:ci:silent": "npm test -- --coverage --silent",
+    "test:fb-api": "npm test -- -c jest-e2e.js",
     "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install; fi"
   },
   "keywords": [],
