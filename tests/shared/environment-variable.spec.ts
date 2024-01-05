@@ -1,4 +1,4 @@
-import { EnvironmentVariableGetter, getOrDefaultEnvironmentVariable } from '@/shared'
+import { EnvironmentVariableGetter, getEnvironmentVariableOrDefault } from '@/shared'
 import { EnvironmentVariableError } from '@/shared/errors'
 
 type SutTypes = {
@@ -6,7 +6,7 @@ type SutTypes = {
 }
 
 const makeSut = (value: string, defaultValue?: string): SutTypes => {
-  const sut = getOrDefaultEnvironmentVariable(value, defaultValue)
+  const sut = getEnvironmentVariableOrDefault(value, defaultValue)
   return { sut }
 }
 describe('getOrDefaultEnvironmentVariable', () => {

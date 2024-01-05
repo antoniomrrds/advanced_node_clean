@@ -1,1 +1,1 @@
-export * from './get-or-default-environment-variable'
+export * from './get-environment-variable-or-default'

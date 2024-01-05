@@ -2,7 +2,7 @@ import { EnvironmentVariableError } from '@/shared/errors'
 
 export type EnvironmentVariableGetter = string
 
-export const getOrDefaultEnvironmentVariable = (
+export const getEnvironmentVariableOrDefault = (
   environmentVariable: string,
   defaultValue?: string
 ): EnvironmentVariableGetter => {
