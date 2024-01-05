@@ -20,4 +20,15 @@ describe('Facebook Api Integration Tests', () => {
       email: userFacebookApi.email
     })
   })
+  it('Should return undefined if token is invalid', async () => {
+    const axiosClient = new AxiosHttpClient()
+    const sut = new FacebookApi(axiosClient,
+      facebookApi.clientId,
+      facebookApi.clientSecret
+    )
+
+    const fbUser = await sut.loadUser({ token: 'invalid_token' })
+
+    expect(fbUser).toBeUndefined()
+  })
 })
