@@ -22,28 +22,28 @@ export class FacebookApi implements LoadFacebookUserApi {
     return this.httpClient.get({
       url: `${this.BASEURL}/oauth/access_token`,
       params: {
-        clientId: this.clientId,
-        clientSecret: this.clientSecret,
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
         grant_type: 'client_credentials'
       }
     })
   }
 
   private async getDebugToken (clientToken: string): Promise<{ data: { user_id: string } }> {
-    const { access_token: accessToken } = await this.getAppToken()
-    return await this.httpClient.get({
+    const { access_token } = await this.getAppToken()
+    return this.httpClient.get({
       url: `${this.BASEURL}/debug_token`,
       params: {
-        access_token: accessToken,
+        access_token,
         input_token: clientToken
       }
     })
   }
 
   private async getUserInfo (clientToken: string): Promise<{ id: string, name: string, email: string }> {
-    const { data: { user_id: userId } } = await this.getDebugToken(clientToken)
+    const { data: { user_id } } = await this.getDebugToken(clientToken)
     return this.httpClient.get({
-      url: `${this.BASEURL}/${userId}`,
+      url: `${this.BASEURL}/${user_id}`,
       params: {
         fields: ['id', 'name', 'email'].join(','),
         access_token: clientToken
