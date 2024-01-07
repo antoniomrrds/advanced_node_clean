@@ -1,7 +1,8 @@
 import './config/module-alias'
+import { portServer } from '@/main/config/env'
+
 import 'reflect-metadata'
 
 import { app } from '@/main/config'
 
-const portServer = 3000
-app.listen(3000, () => console.log(`🚀Server running at http://localhost:${portServer}`))
+app.listen(portServer, () => console.log(`🚀Server running at http://localhost:${portServer}`))
