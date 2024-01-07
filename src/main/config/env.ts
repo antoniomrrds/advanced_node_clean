@@ -1,6 +1,7 @@
 import { getEnvironmentVariableOrDefault as getEnvVarOrDefault } from '@/shared'
 
-export const { facebookApi, userFacebookApi, portServer } = {
+export const { facebookApi, userFacebookApi, portServer, jwtSecret } = {
+  jwtSecret: getEnvVarOrDefault('JWT_SECRET', 't*45-1arf@123'),
   portServer: getEnvVarOrDefault('PORT', '3000'),
   facebookApi: {
     clientId: getEnvVarOrDefault('FB_CLIENT_ID', process.env.FB_CLIENT_ID_TEST),
