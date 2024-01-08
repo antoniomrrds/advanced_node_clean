@@ -14,5 +14,14 @@ describe('ExpressRouterAdapter', () => {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(controller.handle).toHaveBeenCalledWith({ any: 'any' })
   })
-  
+  it('Should call handle with empty request', async () => {
+    const req = getMockReq()
+    const { res } = getMockRes()
+    const controller = mock<Controller>()
+    const sut = new ExpressRouterAdapter(controller)
+    await sut.adapt(req, res)
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(controller.handle).toHaveBeenCalledWith({})
+  })
 })
