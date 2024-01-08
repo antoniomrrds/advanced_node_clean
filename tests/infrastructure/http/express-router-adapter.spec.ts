@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { getMockReq, getMockRes } from '@jest-mock/express'
 import { Controller } from '@/presentation/controllers'
 import { mock, MockProxy } from 'jest-mock-extended'
@@ -14,20 +15,32 @@ describe('ExpressRouterAdapter', () => {
     req = getMockReq({ body: { any: 'any' } })
     res = getMockRes().res
     controller = mock()
+    controller.handle.mockResolvedValue({
+      statusCode: 200,
+      body: { data: 'any_data' }
+    })
     sut = new ExpressRouterAdapter(controller)
   })
   it('Should call handle with correct request', async () => {
     await sut.adapt(req, res)
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(controller.handle).toHaveBeenCalledWith({ any: 'any' })
+    expect(controller.handle).toHaveBeenCalledTimes(1)
   })
   it('Should call handle with empty request', async () => {
     const req = getMockReq()
 
     await sut.adapt(req, res)
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(controller.handle).toHaveBeenCalledWith({})
+    expect(controller.handle).toHaveBeenCalledTimes(1)
+  })
+  it('Should respond with 200 and valid data', async () => {
+    await sut.adapt(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.status).toHaveBeenCalledTimes(1)
+    expect(res.json).toHaveBeenCalledWith({ data: 'any_data' })
+    expect(res.json).toHaveBeenCalledTimes(1)
   })
 })
