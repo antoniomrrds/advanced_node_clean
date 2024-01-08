@@ -15,29 +15,22 @@ export class PgUserAccountRepository implements LoadUserAccountRepository, SaveF
     this.pgUserRepos = dataSource.getRepository(PgUser)
   }
 
-  async load (params: loadParams): Promise<loadResult> {
-    const pgUser = await this.pgUserRepos.findOne({ where: { email: params.email } })
+  async load ({ email }: loadParams): Promise<loadResult> {
+    const pgUser = await this.pgUserRepos.findOne({ where: { email } })
     if (pgUser) {
       return { id: pgUser.id.toString(), name: pgUser.name ?? undefined }
     }
   }
 
-  async saveWithFacebook (params: saveParams): Promise<saveResult> {
-    let id: string
-    if (params.id === undefined) {
-      const pgUser = await this.pgUserRepos.save({
-        email: params.email,
-        name: params.name,
-        facebookId: params.facebookId
-      })
-      id = pgUser.id.toString()
+  async saveWithFacebook ({ id, name, facebookId, email }: saveParams): Promise<saveResult> {
+    let resultId: string
+    if (id === undefined) {
+      const pgUser = await this.pgUserRepos.save({ email, name, facebookId })
+      resultId = pgUser.id.toString()
     } else {
-      id = params.id
-      await this.pgUserRepos.update({ id: Number(params.id) }, {
-        name: params.name,
-        facebookId: params.facebookId
-      })
+      resultId = id
+      await this.pgUserRepos.update({ id: Number(id) }, { name, facebookId })
     }
-    return { id }
+    return { id: resultId }
   }
 }

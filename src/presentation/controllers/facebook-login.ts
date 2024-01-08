@@ -17,8 +17,8 @@ export class FacebookLoginController extends Controller {
     return await this.performFacebookAuth(httpRequest)
   }
 
-  override buildValidators (httpRequest: HttpRequest): Validator[] {
-    return [...ValidationBuilder.of({ value: httpRequest.token, fieldName: 'token' }).required().build()]
+  override buildValidators ({ token }: HttpRequest): Validator[] {
+    return [...ValidationBuilder.of({ value: token, fieldName: 'token' }).required().build()]
   }
 
   private async performFacebookAuth ({ token }: HttpRequest): Promise<HttpResponse<Model>> {

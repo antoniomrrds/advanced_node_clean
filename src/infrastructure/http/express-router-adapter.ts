@@ -1,15 +1,10 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { RequestHandler } from 'express'
 import { Controller } from '@/presentation/controllers'
 export const adaptExpressRoute = (controller: Controller): RequestHandler => {
-  return (req, res, next) => {
-    controller.handle({ ...req.body })
-      .then(httpResponse => {
-        if (httpResponse.statusCode === 200) {
-          res.status(200).json(httpResponse.body)
-        } else {
-          res.status(httpResponse.statusCode).json({ error: httpResponse.body.message })
-        }
-      })
-      .catch(err => next(err))
+  return async (req, res) => {
+    const { statusCode, body } = await controller.handle({ ...req.body })
+    const json = statusCode === 200 ? body : { error: body.message }
+    res.status(statusCode).json(json)
   }
 }
