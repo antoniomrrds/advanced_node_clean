@@ -7,7 +7,7 @@ export class ExpressRouterAdapter {
     if (httpResponse.statusCode === 200) {
       res.status(200).json(httpResponse.body)
     } else {
-      res.status(400).json({ error: httpResponse.body.message })
+      res.status(httpResponse.statusCode).json({ error: httpResponse.body.message })
     }
   }
 }
