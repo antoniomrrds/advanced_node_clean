@@ -1,13 +1,15 @@
-import { Request, Response } from 'express'
+import { RequestHandler } from 'express'
 import { Controller } from '@/presentation/controllers'
-export class ExpressRouterAdapter {
-  constructor (private readonly controller: Controller) {}
-  async adapt (req: Request, res: Response): Promise<void> {
-    const httpResponse = await this.controller.handle({ ...req.body })
-    if (httpResponse.statusCode === 200) {
-      res.status(200).json(httpResponse.body)
-    } else {
-      res.status(httpResponse.statusCode).json({ error: httpResponse.body.message })
-    }
+export const adaptExpressRoute = (controller: Controller): RequestHandler => {
+  return (req, res, next) => {
+    controller.handle({ ...req.body })
+      .then(httpResponse => {
+        if (httpResponse.statusCode === 200) {
+          res.status(200).json(httpResponse.body)
+        } else {
+          res.status(httpResponse.statusCode).json({ error: httpResponse.body.message })
+        }
+      })
+      .catch(err => next(err))
   }
 }
