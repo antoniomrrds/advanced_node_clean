@@ -1,5 +1,6 @@
 import { Controller } from '@/presentation/controllers'
 import { ServerError } from '@/presentation/errors'
+import { serverError } from '@/presentation/helpers'
 import { HttpResponse } from '@/presentation/ports'
 import { ValidationComposite } from '@/presentation/validation'
 import { mocked } from 'jest-mock'
@@ -55,5 +56,14 @@ describe('Controller', () => {
     const httpResponse = await sut.handle('any_value')
 
     expect(httpResponse).toEqual(sut.result)
+  })
+
+  it('should return a ServerError response with "Server failed. Try again soon" when error is undefined', () => {
+    // Arrange
+    const error: undefined = undefined
+    // Act
+    const result = serverError(error)
+    // Assert
+    expect(result).toEqual(result)
   })
 })
