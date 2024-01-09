@@ -3,27 +3,31 @@ import { PgUserAccountRepository } from '@/infrastructure/postgres/repositories'
 import { DataSource, Repository } from 'typeorm'
 import { IBackup } from 'pg-mem'
 import { makeFakeDb } from '@/tests/infrastructure/postgres/mocks'
+import { PostgresDataSource } from '@/infrastructure/postgres/config'
 
 describe('PgUserAccountRepository', () => {
-  let PostgresDataSource: DataSource
+  let pgDataSource: DataSource
   let sut: PgUserAccountRepository
   let pgUserRepos: Repository<PgUser>
   let backup: IBackup
 
   beforeAll(async () => {
-    const { db, dataSource } = await makeFakeDb()
-    PostgresDataSource = dataSource
+    const { db, dataSource } = await makeFakeDb([PgUser])
+    pgDataSource = dataSource
     backup = db.backup()
-    pgUserRepos = PostgresDataSource.getRepository(PgUser)
+    jest.spyOn(PostgresDataSource, 'getRepository').mockImplementation((entity) => {
+      return dataSource.getRepository(entity)
+    })
+    pgUserRepos = pgDataSource.getRepository(PgUser)
   })
 
   beforeEach(() => {
     backup.restore()
-    sut = new PgUserAccountRepository(PostgresDataSource)
+    sut = new PgUserAccountRepository()
   })
 
   afterAll(async () => {
-    await PostgresDataSource.destroy()
+    await pgDataSource.destroy()
   })
   describe('load', () => {
     it('Should return an account if email exists', async () => {
