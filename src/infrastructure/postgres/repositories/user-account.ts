@@ -1,6 +1,5 @@
 import { LoadUserAccountRepository, SaveFacebookAccountRepository } from '@/application/ports'
-
-import { DataSource, Repository } from 'typeorm'
+import { PostgresDataSource } from '@/infrastructure/postgres/config'
 import { PgUser } from '@/infrastructure/postgres/entities'
 
 type loadParams = LoadUserAccountRepository.Params
@@ -9,14 +8,9 @@ type saveParams = SaveFacebookAccountRepository.Params
 type saveResult = SaveFacebookAccountRepository.Result
 
 export class PgUserAccountRepository implements LoadUserAccountRepository, SaveFacebookAccountRepository {
-  private readonly pgUserRepos: Repository<PgUser>
-
-  constructor (dataSource: DataSource) {
-    this.pgUserRepos = dataSource.getRepository(PgUser)
-  }
-
   async load ({ email }: loadParams): Promise<loadResult> {
-    const pgUser = await this.pgUserRepos.findOne({ where: { email } })
+    const pgUserRepos = PostgresDataSource.getRepository(PgUser)
+    const pgUser = await pgUserRepos.findOne({ where: { email } })
     if (pgUser) {
       return { id: pgUser.id.toString(), name: pgUser.name ?? undefined }
     }
@@ -24,12 +18,14 @@ export class PgUserAccountRepository implements LoadUserAccountRepository, SaveF
 
   async saveWithFacebook ({ id, name, facebookId, email }: saveParams): Promise<saveResult> {
     let resultId: string
+    const pgUserRepos = PostgresDataSource.getRepository(PgUser)
+
     if (id === undefined) {
-      const pgUser = await this.pgUserRepos.save({ email, name, facebookId })
+      const pgUser = await pgUserRepos.save({ email, name, facebookId })
       resultId = pgUser.id.toString()
     } else {
       resultId = id
-      await this.pgUserRepos.update({ id: Number(id) }, { name, facebookId })
+      await pgUserRepos.update({ id: Number(id) }, { name, facebookId })
     }
     return { id: resultId }
   }
