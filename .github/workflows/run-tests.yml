@@ -6,6 +6,9 @@ jobs:
   run-tests:
     name: Run Tests
     runs-on: ubuntu-latest
+    env:
+      FB_CLIENT_ID_TEST: ${{ secrets.FB_CLIENT_ID_TEST }}
+      FB_CLIENT_SECRET_TEST: ${{ secrets.FB_CLIENT_SECRET_TEST }}
     steps:
       - uses: actions/checkout@v4 # baixar o codigo do app no ubuntu
       - uses: actions/setup-node@v3   # configurar o Nodejs
