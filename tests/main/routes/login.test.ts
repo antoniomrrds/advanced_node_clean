@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm'
 import { app } from '@/main/config'
 import { makeFakeDb } from '@/tests/infrastructure/postgres/mocks'
 import { PgUser } from '@/infrastructure/postgres/entities'
-import { PostgresDataSource } from '@/infrastructure/postgres/config'
+import { PostgresDataSource } from '@/infrastructure/postgres/connection'
 import { UnauthorizedError } from '@/presentation/errors'
 
 describe('Login Routes', () => {

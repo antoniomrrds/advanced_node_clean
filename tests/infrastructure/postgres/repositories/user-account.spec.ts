@@ -3,7 +3,7 @@ import { PgUserAccountRepository } from '@/infrastructure/postgres/repositories'
 import { DataSource, Repository } from 'typeorm'
 import { IBackup } from 'pg-mem'
 import { makeFakeDb } from '@/tests/infrastructure/postgres/mocks'
-import { PostgresDataSource } from '@/infrastructure/postgres/config'
+import { PostgresDataSource } from '@/infrastructure/postgres/connection'
 
 describe('PgUserAccountRepository', () => {
   let pgDataSource: DataSource
