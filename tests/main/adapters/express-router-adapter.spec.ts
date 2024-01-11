@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/await-thenable */
 /* eslint-disable @typescript-eslint/unbound-method */
-import { getMockReq, getMockRes } from '@jest-mock/express'
 import { Controller } from '@/presentation/controllers'
-import { mock, MockProxy } from 'jest-mock-extended'
-import { adaptExpressRoute } from '@/infrastructure/http'
+import { adaptExpressRoute } from '@/main/adapters'
+
 import { Request, RequestHandler, Response, NextFunction } from 'express'
+
+import { getMockReq, getMockRes } from '@jest-mock/express'
+import { mock, MockProxy } from 'jest-mock-extended'
 
 describe('ExpressRouterAdapter', () => {
   let req: Request

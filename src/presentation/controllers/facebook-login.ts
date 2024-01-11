@@ -1,4 +1,3 @@
-import { AccessToken } from '@/domain/entities'
 import { HttpResponse } from '@/presentation/ports'
 import { ok, unauthorized } from '@/presentation/helpers'
 import { ValidationBuilder, Validator } from '@/presentation/validation'
@@ -22,9 +21,8 @@ export class FacebookLoginController extends Controller {
   }
 
   private async performFacebookAuth ({ token }: HttpRequest): Promise<HttpResponse<Model>> {
-    const accessToken = await this.facebookAuth({ token })
-    return (accessToken instanceof AccessToken)
-      ? ok({ accessToken: accessToken.value })
-      : unauthorized()
+    return this.facebookAuth({ token })
+      .then((accessToken) => ok(accessToken))
+      .catch(() => unauthorized())
   }
 }
