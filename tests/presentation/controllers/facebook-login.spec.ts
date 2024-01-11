@@ -1,5 +1,5 @@
 import { AccessToken } from '@/domain/entities'
-import { AuthenticationError } from '@/domain/errors'
+import { AuthenticationError } from '@/domain/entities/errors'
 import { FacebookAuthentication } from '@/domain/features'
 import { FacebookLoginController } from '@/presentation/controllers'
 import { UnauthorizedError } from '@/presentation/errors'

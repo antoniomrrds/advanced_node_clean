@@ -1,4 +1,4 @@
-import { LoadUserAccountRepository, SaveFacebookAccountRepository } from '@/application/ports'
+import { LoadUserAccountRepository, SaveFacebookAccountRepository } from '@/domain/ports'
 import { PostgresDataSource } from '@/infrastructure/postgres/connection'
 import { PgUser } from '@/infrastructure/postgres/entities'
 

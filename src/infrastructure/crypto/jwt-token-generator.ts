@@ -1,4 +1,4 @@
-import { TokenGenerator } from '@/application/ports'
+import { TokenGenerator } from '@/domain/ports'
 import { sign } from 'jsonwebtoken'
 
 type Params = TokenGenerator.Params

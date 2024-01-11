@@ -1,4 +1,4 @@
-import { LoadFacebookUserApi } from '@/application/ports'
+import { LoadFacebookUserApi } from '@/domain/ports'
 import { HttpGetClient } from '@/infrastructure/http'
 
 type Params = LoadFacebookUserApi.Params
