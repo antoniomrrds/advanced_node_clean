@@ -7,30 +7,43 @@ jest.mock('jsonwebtoken')
 describe('JwtTokenHandler', () => {
   let sut: JwtTokenHandler
   let fakeJwt: jest.Mocked<typeof jwt>
+  let secret: string
 
   beforeAll(() => {
+    secret = 'any_secret'
     fakeJwt = jwt as jest.Mocked<typeof jwt>
-    fakeJwt.sign.mockImplementation(() => 'any_token')
   })
 
   beforeEach(() => {
-    sut = new JwtTokenHandler('any_secret')
+    sut = new JwtTokenHandler(secret)
   })
 
-  it('Should call sign with correct values', async () => {
-    await sut.generateToken({ key: 'any_key', expirationInMs: 1000 })
-    expect(fakeJwt.sign).toHaveBeenCalledWith({ key: 'any_key' }, 'any_secret', { expiresIn: 1 })
-  })
-  it('Should return a token on sign success', async () => {
-    const token = await sut.generateToken({ key: 'any_key', expirationInMs: 1000 })
+  describe('generateToken', () => {
+    let key: string
+    let token: string
+    let expirationInMs: number
+    beforeAll(() => {
+      key = 'any_key'
+      token = 'any_token'
+      expirationInMs = 1000
+      fakeJwt.sign.mockImplementation(() => token)
+    })
+    it('Should call sign with correct values', async () => {
+      await sut.generateToken({ key, expirationInMs })
+      expect(fakeJwt.sign).toHaveBeenCalledWith({ key }, secret, { expiresIn: 1 })
+    })
+    it('Should return a token on sign success', async () => {
+      const generateToken = await sut.generateToken({ key, expirationInMs })
 
-    expect(token).toBe('any_token')
-  })
-  it('Should rethrow if sign throws', async () => {
-    fakeJwt.sign.mockImplementationOnce(() => { throw new Error('token_error') })
+      expect(generateToken).toBe(token)
+    })
+    it('Should rethrow if sign throws', async () => {
+      const error = new Error('token_error')
+      fakeJwt.sign.mockImplementationOnce(() => { throw error })
 
-    const promise = sut.generateToken({ key: 'any_key', expirationInMs: 1000 })
+      const promise = sut.generateToken({ key, expirationInMs })
 
-    await expect(promise).rejects.toThrow(new Error('token_error'))
+      await expect(promise).rejects.toThrow(error)
+    })
   })
 })
