@@ -9,8 +9,12 @@ export class AuthenticationMiddleware {
   constructor (private readonly authorize: Authorize) {}
 
   async handle ({ authorization }: HttpRequest): Promise<HttpResponse<Error> | undefined> {
-    const errror = new RequiredStringValidator(authorization, 'authorization').validate()
-    if (errror !== undefined) return forbidden()
-    await this.authorize({ token: authorization })
+    try {
+      const errror = new RequiredStringValidator(authorization, 'authorization').validate()
+      if (errror !== undefined) return forbidden()
+      await this.authorize({ token: authorization })
+    } catch {
+      return forbidden()
+    }
   }
 }
