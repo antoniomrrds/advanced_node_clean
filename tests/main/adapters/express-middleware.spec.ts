@@ -1,28 +1,37 @@
 /* eslint-disable @typescript-eslint/await-thenable */
+import { Request, Response, NextFunction, RequestHandler } from 'express'
+
 import { adaptExpressMiddleware } from '@/main/adapters'
 import { Middleware } from '@/presentation/middlewares'
 import { getMockReq, getMockRes } from '@jest-mock/express'
-import { mock } from 'jest-mock-extended'
+import { MockProxy, mock } from 'jest-mock-extended'
 
 describe('ExpressMiddleware', () => {
-  it('Should call handle with correct request', async () => {
-    const req = getMockReq({ headers: { any: 'any' } })
-    const res = getMockRes().res
-    const next = getMockRes().next
-    const middleware = mock<Middleware>()
-    const sut = adaptExpressMiddleware(middleware)
+  let req: Request
+  let res: Response
+  let next: NextFunction
+  let middleware: MockProxy<Middleware>
+  let sut: RequestHandler
 
+  beforeAll(() => {
+    req = getMockReq({ headers: { any: 'any' } })
+    res = getMockRes().res
+    next = getMockRes().next
+    middleware = mock<Middleware>()
+  })
+
+  beforeEach(() => {
+    sut = adaptExpressMiddleware(middleware)
+  })
+
+  it('Should call handle with correct request', async () => {
     await sut(req, res, next)
 
     expect(middleware.handle).toHaveBeenCalledWith({ any: 'any' })
     expect(middleware.handle).toHaveBeenCalledTimes(1)
   })
   it('Should call handle with empty request', async () => {
-    const req = getMockReq()
-    const res = getMockRes().res
-    const next = getMockRes().next
-    const middleware = mock<Middleware>()
-    const sut = adaptExpressMiddleware(middleware)
+    req = getMockReq()
 
     await sut(req, res, next)
 
