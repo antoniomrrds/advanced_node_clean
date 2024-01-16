@@ -1,3 +1,3 @@
-export * from './apis'
+export * from './gateways'
 export * from './repositories'
 export * from './crypto'

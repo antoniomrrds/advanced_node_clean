@@ -1,14 +1,14 @@
-import { LoadUserAccountRepository, SaveFacebookAccountRepository } from '@/domain/ports'
+import { LoadUserAccount, SaveFacebookAccount } from '@/domain/ports'
 import { PostgresDataSource } from '@/infrastructure/postgres/connection'
 import { PgUser } from '@/infrastructure/postgres/entities'
 
-type loadParams = LoadUserAccountRepository.Params
-type loadResult = LoadUserAccountRepository.Result
-type saveParams = SaveFacebookAccountRepository.Params
-type saveResult = SaveFacebookAccountRepository.Result
+type loadInput = LoadUserAccount.Input
+type loadOutput = LoadUserAccount.Output
+type saveInput = SaveFacebookAccount.Input
+type saveOutput = SaveFacebookAccount.Output
 
-export class PgUserAccountRepository implements LoadUserAccountRepository, SaveFacebookAccountRepository {
-  async load ({ email }: loadParams): Promise<loadResult> {
+export class PgUserAccountRepository implements LoadUserAccount, SaveFacebookAccount {
+  async load ({ email }: loadInput): Promise<loadOutput> {
     const pgUserRepos = PostgresDataSource.getRepository(PgUser)
     const pgUser = await pgUserRepos.findOne({ where: { email } })
     if (pgUser) {
@@ -16,7 +16,7 @@ export class PgUserAccountRepository implements LoadUserAccountRepository, SaveF
     }
   }
 
-  async saveWithFacebook ({ id, name, facebookId, email }: saveParams): Promise<saveResult> {
+  async saveWithFacebook ({ id, name, facebookId, email }: saveInput): Promise<saveOutput> {
     let resultId: string
     const pgUserRepos = PostgresDataSource.getRepository(PgUser)
 

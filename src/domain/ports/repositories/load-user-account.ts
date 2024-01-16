@@ -1,11 +1,11 @@
-export interface LoadUserAccountRepository {
-  load: (params: LoadUserAccountRepository.Params) => Promise<LoadUserAccountRepository.Result>
+export interface LoadUserAccount {
+  load: (input: LoadUserAccount.Input) => Promise<LoadUserAccount.Output>
 }
-export namespace LoadUserAccountRepository {
-  export type Params = {
+export namespace LoadUserAccount {
+  export type Input = {
     email: string
   }
-  export type Result = undefined | {
+  export type Output = undefined | {
     id: string
     name?: string
   }

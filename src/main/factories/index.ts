@@ -1,5 +1,5 @@
 export * from './controller'
-export * from './apis'
+export * from './gateways'
 export * from './use-cases'
 export * from './repositories'
 export * from './http'
