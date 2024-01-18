@@ -62,12 +62,9 @@ describe('FacebookAuthentication', () => {
     expect(userAccountRepo.load).toHaveBeenCalledTimes(1)
   })
   it('Should call SaveFacebookAccount with FacebookAccount', async () => {
-    const FacebookAccountStub = jest.fn().mockImplementation(() => ({ any: 'any' }))
-    mocked(FacebookAccount).mockImplementation(FacebookAccountStub)
-
     await sut({ token })
 
-    expect(userAccountRepo.saveWithFacebook).toHaveBeenCalledWith({ any: 'any' })
+    expect(userAccountRepo.saveWithFacebook).toHaveBeenCalledWith(...mocked(FacebookAccount).mock.instances)
     expect(userAccountRepo.saveWithFacebook).toHaveBeenCalledTimes(1)
   })
   it('Should call TokenGenerator with correct params', async () => {
