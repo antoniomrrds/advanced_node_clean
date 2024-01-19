@@ -1,6 +1,6 @@
 import { UUIDGenerator } from '@/domain/ports'
 
-export class UniqueId {
+export class UniqueId implements UUIDGenerator {
   constructor (private readonly date: Date) {}
 
   uuid ({ key }: UUIDGenerator.Input): UUIDGenerator.Output {
