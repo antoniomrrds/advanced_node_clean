@@ -1,7 +1,7 @@
 import { UserProfile } from '@/domain/entities'
-import { LoadUserProfile, SaveUserPicture, UUIDGenerator, UploadFile } from '@/domain/ports'
+import { DeleteFile, LoadUserProfile, SaveUserPicture, UUIDGenerator, UploadFile } from '@/domain/ports'
 
-type Setup = (fileStorage: UploadFile, crypto: UUIDGenerator, userProfileRepo: SaveUserPicture & LoadUserProfile) => ChangeProfilePicture
+type Setup = (fileStorage: UploadFile & DeleteFile, crypto: UUIDGenerator, userProfileRepo: SaveUserPicture & LoadUserProfile) => ChangeProfilePicture
 type Input = { id: string, file?: Buffer }
 type Output = { initials?: string, pictureUrl?: string }
 export type ChangeProfilePicture = (input: Input) => Promise<Output>
@@ -14,6 +14,10 @@ export const setupChangeProfilePicture: Setup = (fileStorage, crypto, userProfil
   }
   const userProfile = new UserProfile(id)
   userProfile.setPicture(data)
-  await userProfileRepo.savePicture(userProfile)
+  try {
+    await userProfileRepo.savePicture(userProfile)
+  } catch {
+    await fileStorage.delete({ key })
+  }
   return userProfile
 }
