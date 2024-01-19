@@ -4,7 +4,7 @@ export class UserProfile {
 
   constructor (readonly id: string) {}
 
-  setPictureUrl ({ name, pictureUrl }: { pictureUrl?: string, name?: string }): void {
+  setPicture ({ name, pictureUrl }: { pictureUrl?: string, name?: string }): void {
     this.pictureUrl = pictureUrl
     if (pictureUrl === undefined && name !== undefined && name.trim() !== '') {
       const firstLetters = name.match(/\b\w/g)!
