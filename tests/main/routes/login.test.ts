@@ -1,23 +1,25 @@
 import request from 'supertest'
-import { DataSource } from 'typeorm'
 
-import { app } from '@/main/config'
-import { makeFakeDb } from '@/tests/infrastructure/postgres/mocks'
-import { PgUser } from '@/infrastructure/postgres/entities'
-import { PostgresDataSource } from '@/infrastructure/postgres/connection'
+import { makeFakeDb } from '@/tests/infrastructure/repositories/postgres'
+import { PgUser, PostgresDataSource } from '@/infrastructure/repositories/postgres'
 import { UnauthorizedError } from '@/presentation/errors'
+import { Express } from 'express'
 
 describe('Login Routes', () => {
+  let app: Express
+
+  beforeEach(async () => {
+    app = (await import('@/main/config')).app
+  })
+
+  beforeAll(async () => {
+    const dataSource = (await makeFakeDb([PgUser])).dataSource
+    jest.spyOn(PostgresDataSource, 'getRepository').mockReturnValue(dataSource.getRepository(PgUser))
+  })
+
   describe('POST /login', () => {
     const loadUserSpy = jest.fn()
-    beforeAll(async () => {
-      const dataSource: DataSource = (await makeFakeDb([PgUser])).dataSource
-      jest.spyOn(PostgresDataSource, 'getRepository').mockImplementation((entity) => {
-        return dataSource.getRepository(entity)
-      })
-    })
-
-    jest.mock('@/infrastructure/apis/facebook', () => ({
+    jest.mock('@/infrastructure/gateways/facebook-api', () => ({
       FacebookApi: jest.fn().mockReturnValue({ loadUser: loadUserSpy })
     }))
 

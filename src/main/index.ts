@@ -1,7 +1,7 @@
 import './config/module-alias'
 import 'reflect-metadata'
 
-import { PostgresDataSource } from '@/infrastructure/postgres/connection'
+import { PostgresDataSource } from '@/infrastructure/repositories/postgres'
 import { portServer } from '@/main/config/env'
 import { app } from '@/main/config'
 
