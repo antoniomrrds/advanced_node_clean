@@ -20,7 +20,6 @@ jobs:
       - run: |
           npm ci
           npm run test:ci
-          cat ./coverage/lcov.info
       # enviar o relatorio de cobertura de codigo para o coveralls
       - name: Coveralls
         uses: coverallsapp/github-action@v2
