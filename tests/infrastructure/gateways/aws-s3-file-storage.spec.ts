@@ -5,11 +5,20 @@ import { config } from 'aws-sdk'
 jest.mock('aws-sdk')
 
 describe('AwsS3FileStorage', () => {
-  it('Should config aws credentials on creation', () => {
-    const accessKey = 'any_access_key'
-    const secret = 'any_secret'
+  let accessKey: string
+  let secret: string
+  let sut: AwsS3FileStorage
 
-    const sut = new AwsS3FileStorage(accessKey, secret)
+  beforeAll(() => {
+    accessKey = 'any_access_key'
+    secret = 'any_secret'
+  })
+
+  beforeEach(() => {
+    sut = new AwsS3FileStorage(accessKey, secret)
+  })
+
+  it('Should config aws credentials on creation', () => {
     expect(sut).toBeTruthy()
 
     expect(config.update).toHaveBeenCalledWith({
