@@ -1,7 +1,7 @@
 import { UploadFile } from '@/domain/ports'
 import { S3, config } from 'aws-sdk'
 
-export class AwsS3FileStorage {
+export class AwsS3FileStorage implements UploadFile {
   constructor (accessKeyId: string, secret: string, private readonly bucket: string) {
     config.update({
       credentials: {
@@ -11,7 +11,7 @@ export class AwsS3FileStorage {
     })
   }
 
-  async upload ({ key, file }: UploadFile.Input): Promise<void> {
+  async upload ({ key, file }: UploadFile.Input): Promise<UploadFile.Output> {
     const s3 = new S3()
     await s3.putObject({
       Bucket: this.bucket,
@@ -19,5 +19,7 @@ export class AwsS3FileStorage {
       Body: file,
       ACL: 'public-read'
     }).promise()
+
+    return `https://${this.bucket}.s3.amazonaws.com/${encodeURIComponent(key)}`
   }
 }
