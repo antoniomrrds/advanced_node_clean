@@ -1,13 +1,23 @@
-import { config } from 'aws-sdk'
+import { UploadFile } from '@/domain/ports'
+import { S3, config } from 'aws-sdk'
 
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class AwsS3FileStorage {
-  constructor (accessKeyId: string, secret: string) {
+  constructor (accessKeyId: string, secret: string, private readonly bucket: string) {
     config.update({
       credentials: {
         accessKeyId,
         secretAccessKey: secret
       }
     })
+  }
+
+  async upload ({ key, file }: UploadFile.Input): Promise<void> {
+    const s3 = new S3()
+    await s3.putObject({
+      Bucket: this.bucket,
+      Key: key,
+      Body: file,
+      ACL: 'public-read'
+    }).promise()
   }
 }
