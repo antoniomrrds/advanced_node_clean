@@ -8,22 +8,15 @@ jest.mock('aws-sdk')
 describe('AwsS3FileStorage', () => {
   let accessKey: string
   let secret: string
-  let sut: AwsS3FileStorage
   let bucket: string
   let key: string
-  let file: Buffer
-  let putObjectSpy: jest.Mock
-  let putObjectPromiseSpy: jest.Mock
+  let sut: AwsS3FileStorage
 
   beforeAll(() => {
     accessKey = 'any_access_key'
     secret = 'any_secret'
     bucket = 'any_bucket'
     key = 'any_key'
-    file = Buffer.from('any_buffer')
-    putObjectPromiseSpy = jest.fn()
-    putObjectSpy = jest.fn().mockImplementation(() => ({ promise: putObjectPromiseSpy }))
-    mocked(S3).mockImplementation(jest.fn().mockImplementation(() => ({ putObject: putObjectSpy })))
   })
 
   beforeEach(() => {
@@ -41,34 +34,52 @@ describe('AwsS3FileStorage', () => {
     })
     expect(config.update).toHaveBeenCalledTimes(1)
   })
-  it('Should call putObject with correct input', async () => {
-    await sut.upload({ key, file })
 
-    expect(putObjectSpy).toHaveBeenCalledWith({
-      Bucket: bucket,
-      Key: key,
-      Body: file,
-      ACL: 'public-read'
+  describe('upload', () => {
+    let file: Buffer
+    let putObjectSpy: jest.Mock
+    let putObjectPromiseSpy: jest.Mock
+
+    beforeAll(() => {
+      file = Buffer.from('any_buffer')
+      putObjectPromiseSpy = jest.fn()
+      putObjectSpy = jest.fn().mockImplementation(() => ({ promise: putObjectPromiseSpy }))
+      mocked(S3).mockImplementation(jest.fn().mockImplementation(() => ({ putObject: putObjectSpy })))
     })
-    expect(putObjectSpy).toHaveBeenCalledTimes(1)
-    expect(putObjectPromiseSpy).toHaveBeenCalledTimes(1)
+
+    it('Should call putObject with correct input', async () => {
+      await sut.upload({ key, file })
+
+      expect(putObjectSpy).toHaveBeenCalledWith({
+        Bucket: bucket,
+        Key: key,
+        Body: file,
+        ACL: 'public-read'
+      })
+      expect(putObjectSpy).toHaveBeenCalledTimes(1)
+      expect(putObjectPromiseSpy).toHaveBeenCalledTimes(1)
+    })
+    it('Should return image url', async () => {
+      const imageUrl = await sut.upload({ key, file })
+
+      expect(imageUrl).toBe(`https://${bucket}.s3.amazonaws.com/${key}`)
+    })
+    it('Should return encoded image url', async () => {
+      const imageUrl = await sut.upload({ key: 'any_key with spaces', file })
+
+      expect(imageUrl).toBe(`https://${bucket}.s3.amazonaws.com/any_key%20with%20spaces`)
+    })
+    it('Should rethrow if putObject throws', async () => {
+      const error = new Error('upload_error')
+      putObjectPromiseSpy.mockRejectedValueOnce(error)
+
+      const promise = sut.upload({ key, file })
+
+      await expect(promise).rejects.toThrow(error)
+    })
   })
-  it('Should return image url', async () => {
-    const imageUrl = await sut.upload({ key, file })
 
-    expect(imageUrl).toBe(`https://${bucket}.s3.amazonaws.com/${key}`)
-  })
-  it('Should return encoded image url', async () => {
-    const imageUrl = await sut.upload({ key: 'any_key with spaces', file })
+  describe('delete', () => {
 
-    expect(imageUrl).toBe(`https://${bucket}.s3.amazonaws.com/any_key%20with%20spaces`)
-  })
-  it('Should rethrow if putObject throws', async () => {
-    const error = new Error('upload_error')
-    putObjectPromiseSpy.mockRejectedValueOnce(error)
-
-    const promise = sut.upload({ key, file })
-
-    await expect(promise).rejects.toThrow(error)
   })
 })
