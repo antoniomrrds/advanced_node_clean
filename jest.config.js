@@ -4,7 +4,7 @@ module.exports = {
     '<rootDir>/src/**/*.ts',
     '!<rootDir>/src/main/**',
     '!**/ports/**',
-    '!<rootDir>/src/**/index.ts',
+    '!<rootDir>/src/**/(index|*-config).ts',
     '!<rootDir>/src/domain/entities/access-token.ts'
   ],
   coverageDirectory: 'coverage',
