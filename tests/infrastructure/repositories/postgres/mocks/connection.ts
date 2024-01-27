@@ -1,32 +1,54 @@
-import { DataType, newDb, IMemoryDb } from 'pg-mem'
-import { DataSource } from 'typeorm'
-export const makeFakeDb = async (entities?: any[]): Promise<{ dataSource: DataSource, db: IMemoryDb }> => {
-  const db = newDb({ autoCreateForeignKeyIndices: true })
+import { DataType, newDb, IMemoryDb, IBackup } from 'pg-mem'
+import { DataSource, ObjectLiteral } from 'typeorm'
+import { v4 as uuid } from 'uuid'
 
-  db.public.registerFunction({
-    name: 'current_database',
-    args: [],
-    returns: DataType.text,
-    implementation: (x) => `hello world: ${x}`
-  })
+import { EntityTarget } from 'typeorm/common/EntityTarget'
+import { Repository } from 'typeorm/repository/Repository'
 
-  db.public.registerFunction({
-    name: 'version',
-    args: [],
-    returns: DataType.text,
-    implementation: (x) => `hello world: ${x}`
-  })
-
-  const dataSource = db.adapters.createTypeormDataSource({
-    type: 'postgres',
-    entities: entities ?? ['src/infrastructure/repositories/postgres/entities/index.ts']
-  })
-  // Initialize datasource
-
-  await dataSource.initialize()
-  // create schema
-
-  await dataSource.synchronize()
-
-  return { dataSource, db }
+export const PgTestHelper = {
+  db: null as unknown as IMemoryDb,
+  connection: null as unknown as DataSource,
+  backup: null as unknown as IBackup,
+  async connect (entities?: any[]) {
+    this.db = newDb()
+    this.db.registerExtension('uuid-ossp', (schema) => {
+      schema.registerFunction({
+        name: 'uuid_generate_v4',
+        returns: DataType.uuid,
+        implementation: () => uuid(),
+        impure: true
+      })
+    })
+    this.db.public.registerFunction({
+      implementation: () => 'test',
+      name: 'current_database'
+    })
+    this.db.public.registerFunction({
+      implementation: () => 'test',
+      name: 'version'
+    })
+    this.connection = await this.db.adapters.createTypeormDataSource({
+      type: 'postgres',
+      entities: entities ?? ['src/infrastructure/repositories/postgres/entities/index.ts'],
+      logging: false
+    })
+    await this.initialize()
+    await this.sync()
+    this.backup = this.db.backup()
+  },
+  getRepository<Entity extends ObjectLiteral>(name: EntityTarget<Entity>): Repository<Entity> {
+    return this.connection.getRepository<Entity>(name)
+  },
+  async initialize () {
+    await this.connection.initialize()
+  },
+  async disconnect () {
+    await this.connection.destroy()
+  },
+  restore () {
+    this.backup.restore()
+  },
+  async sync () {
+    await this.connection.synchronize()
+  }
 }

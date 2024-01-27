@@ -1,6 +1,6 @@
 import request from 'supertest'
 
-import { makeFakeDb } from '@/tests/infrastructure/repositories/postgres'
+import { PgTestHelper } from '@/tests/infrastructure/repositories/postgres'
 import { PgUser, PostgresDataSource } from '@/infrastructure/repositories/postgres'
 import { UnauthorizedError } from '@/presentation/errors'
 import { Express } from 'express'
@@ -13,8 +13,9 @@ describe('Login Routes', () => {
   })
 
   beforeAll(async () => {
-    const dataSource = (await makeFakeDb([PgUser])).dataSource
-    jest.spyOn(PostgresDataSource, 'getRepository').mockReturnValue(dataSource.getRepository(PgUser))
+    await PgTestHelper.connect([PgUser])
+    const pgUserRepo = PgTestHelper.connection.getRepository(PgUser)
+    jest.spyOn(PostgresDataSource, 'getRepository').mockReturnValue(pgUserRepo)
   })
 
   describe('POST /login', () => {

@@ -1,35 +1,29 @@
 import { PgUser, PgUserAccountRepository, PostgresDataSource } from '@/infrastructure/repositories/postgres'
-import { DataSource, Repository } from 'typeorm'
-import { IBackup } from 'pg-mem'
-import { makeFakeDb } from '@/tests/infrastructure/repositories/postgres'
+import { PgTestHelper } from '@/tests/infrastructure/repositories/postgres'
+import { Repository } from 'typeorm'
 
 describe('PgUserAccountRepository', () => {
-  let pgDataSource: DataSource
   let sut: PgUserAccountRepository
-  let pgUserRepos: Repository<PgUser>
-  let backup: IBackup
+  let pgUserRepo: Repository<PgUser>
 
   beforeAll(async () => {
-    const { db, dataSource } = await makeFakeDb([PgUser])
-    pgDataSource = dataSource
-    backup = db.backup()
-    jest.spyOn(PostgresDataSource, 'getRepository').mockReturnValue(dataSource.getRepository(PgUser))
-
-    pgUserRepos = pgDataSource.getRepository(PgUser)
+    await PgTestHelper.connect([PgUser])
+    pgUserRepo = PgTestHelper.connection.getRepository(PgUser)
+    jest.spyOn(PostgresDataSource, 'getRepository').mockReturnValue(pgUserRepo)
   })
 
   beforeEach(() => {
-    backup.restore()
+    PgTestHelper.restore()
     sut = new PgUserAccountRepository()
   })
 
   afterAll(async () => {
-    await pgDataSource.destroy()
+    await PgTestHelper.disconnect()
   })
+
   describe('load', () => {
     it('Should return an account if email exists', async () => {
-      // create schema
-      await pgUserRepos.save({ email: 'existing_email' })
+      await pgUserRepo.save({ email: 'existing_email' })
 
       const account = await sut.load({ email: 'existing_email' })
       expect(account).toEqual({ id: '1' })
@@ -49,7 +43,7 @@ describe('PgUserAccountRepository', () => {
         facebookId: 'any_fb_id'
       })
 
-      const pgUser = await pgUserRepos.findOne({ where: { email: 'any_email' } })
+      const pgUser = await pgUserRepo.findOne({ where: { email: 'any_email' } })
       expect(id).toBe('1')
       expect(pgUser?.id).toBe(1)
       expect(pgUser?.name).toBe('any_name')
@@ -57,7 +51,7 @@ describe('PgUserAccountRepository', () => {
     })
 
     it('Should update an account if id is defined', async () => {
-      await pgUserRepos.save({
+      await pgUserRepo.save({
         email: 'any_email',
         name: 'any_name',
         facebookId: 'any_fb_id'
@@ -70,8 +64,8 @@ describe('PgUserAccountRepository', () => {
         facebookId: 'new_fb_id'
       })
 
-      const pgUser = await pgUserRepos.findOne({ where: { id: 1 } })
-      expect(pgUser).toEqual({
+      const pgUser = await pgUserRepo.findOne({ where: { id: 1 } })
+      expect(pgUser).toMatchObject({
         id: 1,
         email: 'any_email',
         name: 'new_name',
