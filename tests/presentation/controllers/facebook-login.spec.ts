@@ -16,6 +16,9 @@ describe('FacebookLoginController', () => {
     facebookAuth = jest.fn()
     facebookAuth.mockResolvedValue({ accessToken: 'any_value' })
   })
+  it('Should extend Controller', async () => {
+    expect(sut).toBeInstanceOf(FacebookLoginController)
+  })
   it('Should build validators correctly', async () => {
     const validators = sut.buildValidators({ token })
 
