@@ -27,6 +27,12 @@ export const PgTestHelper = {
       implementation: () => 'test',
       name: 'version'
     })
+    this.db.public.registerFunction({
+      name: 'obj_description',
+      returns: DataType.text,
+      implementation: () => '',
+      args: [DataType.regclass, DataType.text]
+    })
     this.connection = await this.db.adapters.createTypeormDataSource({
       type: 'postgres',
       entities: entities ?? ['src/infrastructure/repositories/postgres/entities/index.ts'],
