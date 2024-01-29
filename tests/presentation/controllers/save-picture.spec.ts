@@ -6,9 +6,16 @@ describe('SavePictureController', () => {
   beforeEach(() => {
     sut = new SavePictureController()
   })
-  it('Should return 400 if file is not provided', async () => {
-    const response = await sut.handle({ file: undefined })
 
-    expect(response).toEqual({ statusCode: 400, body: new RequiredFieldError('file') })
+  describe.each([
+    ['file is undefined', undefined] as const,
+    ['file is null', null] as const,
+    ['file is empty', { buffer: Buffer.from('') }] as const
+  ])('File is invalid', (testName, file: any) => {
+    it(`Should return 400 if ${testName}`, async () => {
+      const response = await sut.handle({ file })
+
+      expect(response).toEqual({ statusCode: 400, body: new RequiredFieldError('file') })
+    })
   })
 })
