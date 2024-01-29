@@ -1,5 +1,5 @@
 import { AuthenticationError } from '@/domain/entities/errors'
-import { FacebookLoginController } from '@/presentation/controllers'
+import { Controller, FacebookLoginController } from '@/presentation/controllers'
 import { UnauthorizedError } from '@/presentation/errors'
 import { RequiredStringValidator } from '@/presentation/validation'
 
@@ -17,7 +17,7 @@ describe('FacebookLoginController', () => {
     facebookAuth.mockResolvedValue({ accessToken: 'any_value' })
   })
   it('Should extend Controller', async () => {
-    expect(sut).toBeInstanceOf(FacebookLoginController)
+    expect(sut).toBeInstanceOf(Controller)
   })
   it('Should build validators correctly', async () => {
     const validators = sut.buildValidators({ token })

@@ -1,4 +1,4 @@
-import { DeletePictureController } from '@/presentation/controllers'
+import { Controller, DeletePictureController } from '@/presentation/controllers'
 
 describe('DeletePictureController', () => {
   let changeProfilePicture: jest.Mock
@@ -21,5 +21,8 @@ describe('DeletePictureController', () => {
     const response = await sut.handle({ userId: 'any_user_id' })
 
     expect(response).toEqual({ statusCode: 204, body: null })
+  })
+  it('Should extend controller', async () => {
+    expect(sut).toBeInstanceOf(Controller)
   })
 })
