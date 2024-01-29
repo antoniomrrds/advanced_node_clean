@@ -2,7 +2,7 @@ import { RequiredFieldError } from '@/presentation/errors'
 import { badRequest } from '@/presentation/helpers'
 import { HttpResponse } from '@/presentation/ports'
 
-type HttpRequest = { file: any }
+type HttpRequest = { file: { buffer: Buffer } }
 type Model = Error
 
 export class SavePictureController {
