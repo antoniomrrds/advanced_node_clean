@@ -14,6 +14,7 @@ describe('SavePictureController', () => {
     buffer = Buffer.from('any_file')
     file = { buffer, mimeType }
     changeProfilePicture = jest.fn()
+    changeProfilePicture.mockResolvedValue({ initials: 'any_initials', pictureUrl: 'any_url' })
   })
   beforeEach(() => {
     sut = new SavePictureController(changeProfilePicture)
@@ -56,5 +57,16 @@ describe('SavePictureController', () => {
     await sut.handle({ file, userId })
     expect(changeProfilePicture).toHaveBeenCalledWith({ id: userId, file: buffer })
     expect(changeProfilePicture).toHaveBeenCalledTimes(1)
+  })
+  it('Should rerturn 200 with valid data', async () => {
+    const httpResponse = await sut.handle({ file, userId })
+
+    expect(httpResponse).toEqual({
+      statusCode: 200,
+      body: {
+        initials: 'any_initials',
+        pictureUrl: 'any_url'
+      }
+    })
   })
 })
