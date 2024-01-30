@@ -4,12 +4,19 @@ import { InvalidMimeTypeError, MaxFileSizeError, RequiredFieldError } from '@/pr
 describe('SavePictureController', () => {
   let buffer: Buffer
   const mimeType = 'image/png'
+  let file: { buffer: Buffer, mimeType: string }
   let sut: SavePictureController
-  beforeEach(() => {
-    sut = new SavePictureController()
-  })
+  let userId: string
+  let changeProfilePicture: jest.Mock
+
   beforeAll(() => {
+    userId = 'any_user_id'
     buffer = Buffer.from('any_file')
+    file = { buffer, mimeType }
+    changeProfilePicture = jest.fn()
+  })
+  beforeEach(() => {
+    sut = new SavePictureController(changeProfilePicture)
   })
 
   describe.each([
@@ -18,13 +25,13 @@ describe('SavePictureController', () => {
     ['file is empty', { buffer: Buffer.from(''), mimeType }]
   ])('File is invalid', (typeName, file: any) => {
     it(`Should return 400 if ${typeName}`, async () => {
-      const httpResponse = await sut.handle({ file })
+      const httpResponse = await sut.handle({ file, userId })
 
       expect(httpResponse).toEqual({ statusCode: 400, body: new RequiredFieldError('file') })
     })
   })
   it('Should return 400 if type is invalid', async () => {
-    const httpResponse = await sut.handle({ file: { buffer, mimeType: 'invalid_type' } })
+    const httpResponse = await sut.handle({ file: { buffer, mimeType: 'invalid_type' }, userId })
 
     expect(httpResponse).toEqual({ statusCode: 400, body: new InvalidMimeTypeError(['png, jpeg']) })
   })
@@ -34,15 +41,20 @@ describe('SavePictureController', () => {
     { type: 'jpeg', expected: 'image/jpeg' }
 
   ])('Should not return 400 if the type is equal to $type as it is a valid type', async ({ expected }) => {
-    const httpResponse = await sut.handle({ file: { buffer, mimeType: expected } })
+    const httpResponse = await sut.handle({ file: { buffer, mimeType: expected }, userId })
 
     expect(httpResponse).not.toEqual({ statusCode: 400, body: new InvalidMimeTypeError(['png, jpeg']) })
   })
 
   it('Should return 400 if file size is bigger than 5mb', async () => {
     const invalidBuffer = Buffer.from(new ArrayBuffer(6 * 1024 * 1024))
-    const httpResponse = await sut.handle({ file: { buffer: invalidBuffer, mimeType } })
+    const httpResponse = await sut.handle({ file: { buffer: invalidBuffer, mimeType }, userId })
 
     expect(httpResponse).toEqual({ statusCode: 400, body: new MaxFileSizeError(5) })
+  })
+  it('Should call ChangeProfilePicture with correct input', async () => {
+    await sut.handle({ file, userId })
+    expect(changeProfilePicture).toHaveBeenCalledWith({ id: userId, file: buffer })
+    expect(changeProfilePicture).toHaveBeenCalledTimes(1)
   })
 })
