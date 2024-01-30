@@ -1,4 +1,4 @@
-import { SavePictureController } from '@/presentation/controllers'
+import { Controller, SavePictureController } from '@/presentation/controllers'
 import { InvalidMimeTypeError, MaxFileSizeError, RequiredFieldError } from '@/presentation/errors'
 
 describe('SavePictureController', () => {
@@ -68,5 +68,8 @@ describe('SavePictureController', () => {
         pictureUrl: 'any_url'
       }
     })
+  })
+  it('Should extend Controller', async () => {
+    expect(sut).toBeInstanceOf(Controller)
   })
 })
