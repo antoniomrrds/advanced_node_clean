@@ -1,5 +1,5 @@
 import { SavePictureController } from '@/presentation/controllers'
-import { InvalidMimeTypeError, RequiredFieldError } from '@/presentation/errors'
+import { InvalidMimeTypeError, MaxFileSizeError, RequiredFieldError } from '@/presentation/errors'
 
 describe('SavePictureController', () => {
   let buffer: Buffer
@@ -18,15 +18,15 @@ describe('SavePictureController', () => {
     ['file is empty', { buffer: Buffer.from(''), mimeType }]
   ])('File is invalid', (typeName, file: any) => {
     it(`Should return 400 if ${typeName}`, async () => {
-      const response = await sut.handle({ file })
+      const httpResponse = await sut.handle({ file })
 
-      expect(response).toEqual({ statusCode: 400, body: new RequiredFieldError('file') })
+      expect(httpResponse).toEqual({ statusCode: 400, body: new RequiredFieldError('file') })
     })
   })
   it('Should return 400 if type is invalid', async () => {
-    const response = await sut.handle({ file: { buffer, mimeType: 'invalid_type' } })
+    const httpResponse = await sut.handle({ file: { buffer, mimeType: 'invalid_type' } })
 
-    expect(response).toEqual({ statusCode: 400, body: new InvalidMimeTypeError(['png, jpeg']) })
+    expect(httpResponse).toEqual({ statusCode: 400, body: new InvalidMimeTypeError(['png, jpeg']) })
   })
   it.each([
     { type: 'png', expected: 'image/png' },
@@ -34,8 +34,15 @@ describe('SavePictureController', () => {
     { type: 'jpeg', expected: 'image/jpeg' }
 
   ])('Should not return 400 if the type is equal to $type as it is a valid type', async ({ expected }) => {
-    const response = await sut.handle({ file: { buffer, mimeType: expected } })
+    const httpResponse = await sut.handle({ file: { buffer, mimeType: expected } })
 
-    expect(response).not.toEqual({ statusCode: 400, body: new InvalidMimeTypeError(['png, jpeg']) })
+    expect(httpResponse).not.toEqual({ statusCode: 400, body: new InvalidMimeTypeError(['png, jpeg']) })
+  })
+
+  it('Should return 400 if file size is bigger than 5mb', async () => {
+    const invalidBuffer = Buffer.from(new ArrayBuffer(6 * 1024 * 1024))
+    const httpResponse = await sut.handle({ file: { buffer: invalidBuffer, mimeType } })
+
+    expect(httpResponse).toEqual({ statusCode: 400, body: new MaxFileSizeError(5) })
   })
 })
