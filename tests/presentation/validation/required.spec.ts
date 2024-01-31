@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { RequiredFieldError } from '@/presentation/errors'
-import { Required, RequiredString } from '@/presentation/validation'
+import { Required, RequiredBuffer, RequiredString } from '@/presentation/validation'
 
 describe('Required', () => {
   it.each([
@@ -39,6 +39,27 @@ describe('RequiredString', () => {
   })
   it('Should return undefined if value is not empty', () => {
     const sut = new RequiredString('any_value', 'any_field')
+
+    const error = sut.validate()
+
+    expect(error).toBeUndefined()
+  })
+})
+
+describe('RequiredBuffer', () => {
+  it('Should extends Required', () => {
+    const sut = new Required(Buffer.from(''))
+    expect(sut).toBeInstanceOf(Required)
+  })
+  it('Should return an RequiredFieldError if value is empty', () => {
+    const sut = new RequiredBuffer(Buffer.from(''))
+
+    const error = sut.validate()
+
+    expect(error).toEqual(new RequiredFieldError())
+  })
+  it('Should return undefined if value is not empty', () => {
+    const sut = new RequiredBuffer(Buffer.from('any_buffer'))
 
     const error = sut.validate()
 
