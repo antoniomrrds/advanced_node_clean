@@ -30,6 +30,7 @@ export class RequiredString extends Required {
     }
   }
 }
+
 export class RequiredBuffer extends Required {
   constructor (
     override readonly value: Buffer,
