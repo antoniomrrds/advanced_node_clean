@@ -2,7 +2,7 @@ import { ChangeProfilePicture } from '@/domain/use-cases'
 import { Controller } from '@/presentation/controllers/controller'
 import { HttpResponse } from '@/presentation/ports'
 import { ok } from '@/presentation/helpers'
-import { AllowedMimeTypes, MaxFileSize, Required, RequiredBuffer, Validator } from '@/presentation/validation'
+import { Validator, ValidationBuilder as Builder } from '@/presentation/validation'
 
 type HttpRequest = { file: { buffer: Buffer, mimeType: string }, userId: string }
 type Model = Error | {
@@ -22,10 +22,10 @@ export class SavePictureController extends Controller {
 
   override buildValidators ({ file }: HttpRequest): Validator[] {
     return [
-      new Required(file, 'file'),
-      new RequiredBuffer(file.buffer, 'file'),
-      new AllowedMimeTypes(['jpg', 'png'], file.mimeType),
-      new MaxFileSize(5, file.buffer)
+      ...Builder.of({ value: file, fieldName: 'file' })
+        .required()
+        .image({ allowed: ['jpg', 'png'], maxSizeInMb: 5 })
+        .build()
     ]
   }
 }
