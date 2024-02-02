@@ -25,3 +25,9 @@ export const DB = {
   password: getEnvVarOrDefault('DB_PASSWORD', 'test'),
   database: getEnvVarOrDefault('DB_DATABASE', 'test')
 }
+
+export const s3 = {
+  accessKey: getEnvVarOrDefault('AWS_S3_ACCESS_KEY', 'aws_s3_access_key'),
+  secret: getEnvVarOrDefault('AWS_S3_SECRET', 'aws_s3_secret'),
+  bucket: getEnvVarOrDefault('AWS_S3_BUCKET', 'aws_s3_bucket')
+}
