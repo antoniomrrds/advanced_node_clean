@@ -9,6 +9,6 @@ export class PgUserProfileRepository implements SaveUserPicture, LoadUserProfile
   async load ({ id }: LoadUserProfile.Input): Promise< LoadUserProfile.Output> {
     const pgUserRepo = PostgresDataSource.getRepository(PgUser)
     const pgUser = await pgUserRepo.findOne({ where: { id: Number(id) } })
-    if (pgUser !== null) return { name: pgUser.name }
+    if (pgUser !== null) return { name: pgUser.name ?? undefined }
   }
 }

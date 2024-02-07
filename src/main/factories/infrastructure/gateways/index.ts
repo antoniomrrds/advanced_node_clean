@@ -1,3 +1,5 @@
 export * from './jwt-token-handler-factory'
 export * from './axios-client-factory'
 export * from './facebook-api-factory'
+export * from './file-storage-factory'
+export * from './uuid-factory'
