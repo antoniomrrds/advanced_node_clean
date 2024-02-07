@@ -16,7 +16,6 @@ describe('PgUserAccountRepository', () => {
     PgTestHelper.restore()
     sut = new PgUserAccountRepository()
   })
-
   afterAll(async () => {
     await PgTestHelper.disconnect()
   })

@@ -16,7 +16,7 @@ describe('ExpressRouterAdapter', () => {
   let sut: RequestHandler
 
   beforeAll(() => {
-    req = getMockReq({ body: { any: 'any' } })
+    req = getMockReq({ body: { anyBody: 'any_body' }, locals: { anyLocals: 'any_locals' } })
     res = getMockRes().res
     next = getMockRes().next
     controller = mock()
@@ -33,7 +33,7 @@ describe('ExpressRouterAdapter', () => {
   it('Should call handle with correct request', async () => {
     await sut(req, res, next)
 
-    expect(controller.handle).toHaveBeenCalledWith({ any: 'any' })
+    expect(controller.handle).toHaveBeenCalledWith({ anyBody: 'any_body', anyLocals: 'any_locals' })
     expect(controller.handle).toHaveBeenCalledTimes(1)
   })
   it('Should call handle with empty request', async () => {
@@ -65,6 +65,20 @@ describe('ExpressRouterAdapter', () => {
     expect(res.json).toHaveBeenCalledWith({ error: 'any_error' })
     expect(res.json).toHaveBeenCalledTimes(1)
   })
+  it('Should respond with 204 and empty body', async () => {
+    controller.handle.mockResolvedValueOnce({
+      statusCode: 204,
+      body: null
+    })
+
+    await sut(req, res, next)
+
+    expect(res.status).toHaveBeenCalledWith(204)
+    expect(res.status).toHaveBeenCalledTimes(1)
+    expect(res.json).toHaveBeenCalledWith(null)
+    expect(res.json).toHaveBeenCalledTimes(1)
+  })
+
   it('Should ensure ExpressRouterAdapter responds with 500 and valid error', async () => {
     controller.handle.mockResolvedValueOnce({
       statusCode: 500,
