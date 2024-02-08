@@ -1,2 +1,2 @@
 export * from './facebook-login-controller-factory'
-export * from './delete-picture-controller-factory'
+export * from './save-picture-controller-factory'

@@ -30,6 +30,11 @@ describe('SavePictureController', () => {
       new MaxFileSize(5, buffer)
     ])
   })
+  it('Should build validators correctly on delete', async () => {
+    const validators = sut.buildValidators({ file: undefined, userId })
+
+    expect(validators).toEqual([])
+  })
   it('Should call ChangeProfilePicture with correct input', async () => {
     await sut.handle({ file, userId })
     expect(changeProfilePicture).toHaveBeenCalledWith({ id: userId, file })
