@@ -1,9 +1,11 @@
 import { DeleteFile, UploadFile } from '@/domain/ports'
-import { S3, config } from 'aws-sdk'
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 
 export class AwsS3FileStorage implements UploadFile, DeleteFile {
+  private readonly s3Client: S3Client
+
   constructor (accessKeyId: string, secret: string, private readonly bucket: string) {
-    config.update({
+    this.s3Client = new S3Client({
       credentials: {
         accessKeyId,
         secretAccessKey: secret
@@ -12,21 +14,24 @@ export class AwsS3FileStorage implements UploadFile, DeleteFile {
   }
 
   async upload ({ fileName, file }: UploadFile.Input): Promise<UploadFile.Output> {
-    await new S3().putObject({
+    const command = new PutObjectCommand({
       Bucket: this.bucket,
       Key: fileName,
       Body: file,
       ACL: 'public-read'
-    }).promise()
+    })
+
+    await this.s3Client.send(command)
 
     return `https://${this.bucket}.s3.amazonaws.com/${encodeURIComponent(fileName)}`
   }
 
   async delete ({ fileName }: DeleteFile.Input): Promise<void> {
-    await new S3()
-      .deleteObject({
-        Bucket: this.bucket,
-        Key: fileName
-      }).promise()
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucket,
+      Key: fileName
+    })
+
+    await this.s3Client.send(command)
   }
 }
