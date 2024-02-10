@@ -12,7 +12,7 @@ const pgDataSourceOptions: DataSourceOptions = {
 const dataSourceOptions: DataSourceOptions = {
   ...pgDataSourceOptions,
   entities: [
-      `${process.env.TS_NODE_DEV === undefined ? 'src' : 'dist'}/infrastructure/repositories/postgres/entities/**/*{.ts,.js}`
+      `${process.env.TS_NODE_DEV ? 'src' : 'dist'}/infrastructure/repositories/postgres/entities/**/*{.ts,.js}`
   ],
   synchronize: true
 }
