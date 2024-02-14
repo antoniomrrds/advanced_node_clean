@@ -1,9 +1,10 @@
 import { dataSourceOptions } from '@/infrastructure/repositories/postgres/connection'
-import { DataSource } from 'typeorm'
+import { DataSource, QueryRunner } from 'typeorm'
 
 export class PgConnection {
   private static instance?: PgConnection
   private connection?: DataSource
+  private query?: QueryRunner
 
   private constructor () {}
 
@@ -22,6 +23,12 @@ export class PgConnection {
       await this.connection.initialize()
     }
 
-    this.connection?.createQueryRunner()
+    this.query = this.connection?.createQueryRunner()
+  }
+
+  async close (): Promise<void> {
+    await this.connection?.destroy()
+    this.query = undefined
+    this.connection = undefined
   }
 }
