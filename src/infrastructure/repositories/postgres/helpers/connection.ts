@@ -1,4 +1,4 @@
-import { dataSourceOptions } from '@/infrastructure/repositories/postgres/connection'
+import { dataSourceOptions, ConnectionNotFoundError } from '@/infrastructure/repositories/postgres'
 import { DataSource, QueryRunner } from 'typeorm'
 
 export class PgConnection {
@@ -26,8 +26,9 @@ export class PgConnection {
     this.query = this.connection?.createQueryRunner()
   }
 
-  async close (): Promise<void> {
-    await this.connection?.destroy()
+  async disconnect (): Promise<void> {
+    if (this.query === undefined || this.connection === undefined) throw new ConnectionNotFoundError()
+    await this.connection.destroy()
     this.query = undefined
     this.connection = undefined
   }
