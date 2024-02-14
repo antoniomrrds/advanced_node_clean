@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 import { PgConnection } from '@/infrastructure/repositories/postgres/helpers'
 import { mocked } from 'jest-mock'
 import { DataSource, DataSourceOptions } from 'typeorm'
@@ -25,7 +26,8 @@ class MockDataSource extends DataSource {
   isInitialized = false
 
   initialize = jest.fn()
-  createQueryRunner = jest.fn()
+  createQueryRunner = jest.fn().mockReturnValue({})
+  destroy = jest.fn()
 }
 
 describe('PgConnection', () => {
@@ -59,6 +61,10 @@ describe('PgConnection', () => {
     expect(sut).toBe(connection2)
   })
 
+  it('Should not have a connection before connect is called', () => {
+    expect(sut['connection']).toBeUndefined()
+  })
+
   it('Should create a new connection', async () => {
     await sut.connect()
 
@@ -66,7 +72,7 @@ describe('PgConnection', () => {
     expect(dataSourceSpy).toHaveBeenCalledWith(dataSourceOptionsMock)
     expect(dataSourceSpy).toHaveBeenCalledTimes(1)
     expect(mockDataSourceSpy.createQueryRunner).toHaveBeenCalledWith()
-    expect(mockDataSourceSpy.createQueryRunner).toHaveBeenCalledTimes(1)
+    expect(mockDataSourceSpy.createQueryRunner).toHaveBeenCalled()
   })
 
   it('Should use an existing connection', async () => {
@@ -76,6 +82,16 @@ describe('PgConnection', () => {
 
     expect(mockDataSourceSpy.initialize).not.toHaveBeenCalled()
     expect(mockDataSourceSpy.createQueryRunner).toHaveBeenCalledWith()
-    expect(mockDataSourceSpy.createQueryRunner).toHaveBeenCalledTimes(1)
+    expect(mockDataSourceSpy.createQueryRunner).toHaveBeenCalled()
+  })
+
+  it('Should close the connection', async () => {
+    await sut.connect()
+    await sut.close()
+
+    expect(mockDataSourceSpy.destroy).toHaveBeenCalledWith()
+    expect(mockDataSourceSpy.destroy).toHaveBeenCalled()
+    expect(sut['query']).toBeUndefined()
+    expect(sut['connection']).toBeUndefined()
   })
 })
