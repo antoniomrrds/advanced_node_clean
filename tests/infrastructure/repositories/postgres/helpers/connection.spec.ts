@@ -26,27 +26,35 @@ jest.mock('typeorm', () => ({
   Column: jest.fn()
 }))
 
-class MockDataSource extends DataSource {
-  isInitialized = false
-
-  initialize = jest.fn()
-  createQueryRunner = jest.fn().mockReturnValue({})
-  destroy = jest.fn()
-}
-
 describe('PgConnection', () => {
   let sut: PgConnection
   let dataSourceSpy: jest.Mock
-  let mockDataSourceSpy: MockDataSource
   let dataSourceOptionsMock: DataSourceOptions
+  let isInitializedSpy: jest.Mock
+  let createQueryRunnerSpy: jest.Mock
+  const initializeSpy = jest.fn()
+  const destroySpy = jest.fn()
+  const startTransactionSpy = jest.fn()
+  const releaseSpy = jest.fn()
+  const commitTransactionSpy = jest.fn()
+  const rollbackTransactionSpy = jest.fn()
 
   beforeAll(() => {
     dataSourceOptionsMock = getDataSourceOptions()
-    const mockDataSource = new MockDataSource(dataSourceOptionsMock)
-    dataSourceSpy = jest.fn().mockReturnValue(mockDataSource)
+    isInitializedSpy = jest.fn().mockReturnValue(false)
+    createQueryRunnerSpy = jest.fn().mockReturnValue({
+      startTransaction: startTransactionSpy,
+      release: releaseSpy,
+      commitTransaction: commitTransactionSpy,
+      rollbackTransaction: rollbackTransactionSpy
+    })
+    dataSourceSpy = jest.fn().mockReturnValue({
+      isInitialized: isInitializedSpy,
+      initialize: initializeSpy,
+      createQueryRunner: createQueryRunnerSpy,
+      destroy: destroySpy
+    })
     mocked(DataSource).mockImplementation(dataSourceSpy)
-
-    mockDataSourceSpy = mockDataSource
   })
 
   beforeEach(() => {
@@ -63,36 +71,53 @@ describe('PgConnection', () => {
   it('Should create a new connection', async () => {
     await sut.connect()
 
-    expect(mockDataSourceSpy.initialize).toHaveBeenCalledTimes(1)
+    expect(initializeSpy).toHaveBeenCalledTimes(1)
+    expect(initializeSpy).toHaveBeenCalled()
     expect(dataSourceSpy).toHaveBeenCalledWith(dataSourceOptionsMock)
     expect(dataSourceSpy).toHaveBeenCalledTimes(1)
-    expect(mockDataSourceSpy.createQueryRunner).toHaveBeenCalledWith()
-    expect(mockDataSourceSpy.createQueryRunner).toHaveBeenCalled()
+    expect(createQueryRunnerSpy).toHaveBeenCalledWith()
+    expect(createQueryRunnerSpy).toHaveBeenCalled()
   })
   it('Should use an existing connection', async () => {
-    mockDataSourceSpy.isInitialized = true
+    isInitializedSpy.mockReturnValue(true)
 
     await sut.connect()
 
-    expect(mockDataSourceSpy.initialize).not.toHaveBeenCalled()
-    expect(mockDataSourceSpy.createQueryRunner).toHaveBeenCalledWith()
-    expect(mockDataSourceSpy.createQueryRunner).toHaveBeenCalled()
+    expect(initializeSpy).not.toHaveBeenCalled()
+    expect(initializeSpy).not.toHaveBeenCalledWith()
+    expect(createQueryRunnerSpy).toHaveBeenCalledWith()
+    expect(createQueryRunnerSpy).toHaveBeenCalled()
   })
-  it('Should close the connection', async () => {
-    await sut.connect()
-    await sut.disconnect()
 
-    expect(mockDataSourceSpy.destroy).toHaveBeenCalledWith()
-    expect(mockDataSourceSpy.destroy).toHaveBeenCalled()
-    expect(sut['query']).toBeUndefined()
-    expect(sut['connection']).toBeUndefined()
-  })
-  it('Should return ConnectionNotFoundError on disconnect if connection is not found', async () => {
-    const promise = sut.disconnect()
+  type DynamicMethod = 'openTransaction' | 'closeTransaction' | 'commitTransaction' | 'rollbackTransaction' | 'disconnect'
+  type TestData = { method: DynamicMethod, spy: jest.Mock, name: string }
 
-    expect(sut['query']).toBeUndefined()
-    expect(sut['connection']).toBeUndefined()
-    expect(mockDataSourceSpy.destroy).not.toHaveBeenCalled()
-    await expect(promise).rejects.toThrow(new ConnectionNotFoundError())
+  const testCases: TestData [] = [
+    { method: 'disconnect', spy: destroySpy, name: 'disconnect' },
+    { method: 'openTransaction', spy: startTransactionSpy, name: 'open transaction' },
+    { method: 'closeTransaction', spy: releaseSpy, name: 'close transaction' },
+    { method: 'commitTransaction', spy: commitTransactionSpy, name: 'commit transaction' },
+    { method: 'rollbackTransaction', spy: rollbackTransactionSpy, name: 'rollback transaction' }
+  ]
+
+  describe.each(testCases)('Transaction and disconnect', ({ method, spy, name }) => {
+    it(`Should ${name}`, async () => {
+      await sut.connect()
+      await (sut[method] as jest.Mock)()
+
+      expect(spy).toHaveBeenCalledWith()
+      expect(spy).toHaveBeenCalled()
+
+      method !== 'disconnect' && await sut.disconnect()
+    })
+    it(`Should return ConnectionNotFoundError on ${name} if connection is not found`, async () => {
+      const promise = (sut[method] as jest.Mock)()
+
+      expect(sut['query']).toBeUndefined()
+      expect(sut['connection']).toBeUndefined()
+      expect(spy).not.toHaveBeenCalled()
+      expect(spy).not.toHaveBeenCalledWith()
+      await expect(promise).rejects.toThrow(new ConnectionNotFoundError())
+    })
   })
 })
