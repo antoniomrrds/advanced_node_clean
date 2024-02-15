@@ -27,7 +27,6 @@ export class PgConnection {
   }
 
   async disconnect (): Promise<void> {
-    this.query?.startTransaction()
     if (this.query === undefined || this.connection === undefined) throw new ConnectionNotFoundError()
     await this.connection.destroy()
     this.query = undefined
@@ -37,5 +36,20 @@ export class PgConnection {
   async openTransaction (): Promise<void> {
     if (this.query === undefined) throw new ConnectionNotFoundError()
     await this.query.startTransaction()
+  }
+
+  async closeTransaction (): Promise<void> {
+    if (this.query === undefined) throw new ConnectionNotFoundError()
+    await this.query.release()
+  }
+
+  async commitTransaction (): Promise<void> {
+    if (this.query === undefined) throw new ConnectionNotFoundError()
+    await this.query.commitTransaction()
+  }
+
+  async rollbackTransaction (): Promise<void> {
+    if (this.query === undefined) throw new ConnectionNotFoundError()
+    await this.query.rollbackTransaction()
   }
 }
