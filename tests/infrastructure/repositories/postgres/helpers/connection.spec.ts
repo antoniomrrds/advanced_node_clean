@@ -100,6 +100,18 @@ describe('PgConnection', () => {
     expect(createQueryRunnerSpy).toHaveBeenCalledWith()
     expect(createQueryRunnerSpy).toHaveBeenCalled()
   })
+  it('Should set connection', () => {
+    const dataSourceSpy = new DataSource(dataSourceOptionsMock)
+    const setConnectionSpy = jest.spyOn(sut, 'setConnection')
+
+    sut.setConnection(dataSourceSpy)
+
+    expect(sut['connection']).toBeDefined()
+    expect(sut['query']).toBeDefined()
+    expect(setConnectionSpy).toHaveBeenCalledWith(dataSourceSpy)
+    expect(createQueryRunnerSpy).toHaveBeenCalledWith()
+    expect(createQueryRunnerSpy).toHaveBeenCalled()
+  })
 
   type DynamicMethod = 'openTransaction' | 'closeTransaction' | 'commitTransaction' | 'rollbackTransaction' | 'disconnect'
   type TestData = { method: DynamicMethod, spy: jest.Mock, name: string }
@@ -120,7 +132,7 @@ describe('PgConnection', () => {
       expect(spy).toHaveBeenCalledWith()
       expect(spy).toHaveBeenCalled()
     })
-    it(`Should return ConnectionNotFoundError on ${name} if connection is not found`, async () => {
+    it(`Should throw ConnectionNotFoundError on ${name} if connection is not found`, async () => {
       const promise = (sut[method] as jest.Mock)()
 
       expect(sut['query']).toBeUndefined()
@@ -139,7 +151,7 @@ describe('PgConnection', () => {
     expect(getRepositorySpy).toHaveBeenCalled()
     expect(repository).toBe('any_repository')
   })
-  it('Should return ConnectionNotFoundError on get repository if connection is not found', async () => {
+  it('Should throw ConnectionNotFoundError on get repository if connection is not found', async () => {
     expect(getRepositorySpy).not.toHaveBeenCalled()
     expect(() => sut.getRepository(PgUser)).toThrow(new ConnectionNotFoundError())
   })
