@@ -17,6 +17,11 @@ export class PgConnection {
     return PgConnection.instance
   }
 
+  setConnection (connection: DataSource): void {
+    this.connection = connection
+    this.query = this.connection.createQueryRunner()
+  }
+
   async connect (): Promise<void> {
     if (!this.isConnectionInitialized()) {
       this.connection = new DataSource(dataSourceOptions)
