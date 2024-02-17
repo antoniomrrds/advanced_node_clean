@@ -1,5 +1,5 @@
 export * from './connection'
 export * from './repositories'
 export * from './entities'
-export * from './errors'
+export * from './helpers/errors'
 export * from './helpers'
