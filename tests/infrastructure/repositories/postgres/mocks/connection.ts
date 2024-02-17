@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid'
 
 import { EntityTarget } from 'typeorm/common/EntityTarget'
 import { Repository } from 'typeorm/repository/Repository'
+import { PgConnection } from '@/infrastructure/repositories/postgres'
 
 export const PgTestHelper = {
   db: null as unknown as IMemoryDb,
@@ -41,6 +42,10 @@ export const PgTestHelper = {
     await this.initialize()
     await this.sync()
     this.backup = this.db.backup()
+
+    PgConnection.getInstance().setConnection(this.connection)
+
+    return this.connection
   },
   getRepository<Entity extends ObjectLiteral>(name: EntityTarget<Entity>): Repository<Entity> {
     return this.connection.getRepository<Entity>(name)
