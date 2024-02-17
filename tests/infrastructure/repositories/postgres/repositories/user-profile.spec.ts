@@ -1,15 +1,17 @@
-import { PgUser, PostgresDataSource, PgUserProfileRepository } from '@/infrastructure/repositories/postgres'
+import { PgUser, PgUserProfileRepository, PgConnection } from '@/infrastructure/repositories/postgres'
+import { PgRepository } from '@/infrastructure/repositories/postgres/repository'
 import { PgTestHelper } from '@/tests/infrastructure/repositories/postgres'
 import { Repository } from 'typeorm'
 
 describe('PgUserProfileRepository', () => {
   let sut: PgUserProfileRepository
   let pgUserRepo: Repository<PgUser>
+  let connection: PgConnection
 
   beforeAll(async () => {
     await PgTestHelper.connect([PgUser])
-    pgUserRepo = PgTestHelper.connection.getRepository(PgUser)
-    jest.spyOn(PostgresDataSource, 'getRepository').mockReturnValue(pgUserRepo)
+    connection = PgConnection.getInstance()
+    pgUserRepo = connection.getRepository(PgUser)
   })
 
   beforeEach(() => {
@@ -18,8 +20,13 @@ describe('PgUserProfileRepository', () => {
   })
 
   afterAll(async () => {
-    await PgTestHelper.disconnect()
+    await connection.disconnect()
   })
+
+  it('Should extend PgRepository', () => {
+    expect(sut).toBeInstanceOf(PgRepository)
+  })
+
   describe('SavePicture', () => {
     it('Should update user profile', async () => {
       const { id } = await pgUserRepo.save({ email: 'any_email', initials: 'any_initials' })

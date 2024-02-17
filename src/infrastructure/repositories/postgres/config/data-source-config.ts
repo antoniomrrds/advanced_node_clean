@@ -1,5 +1,5 @@
 import { DB } from '@/main/config/env'
-import { DataSourceOptions, DataSource } from 'typeorm'
+import { DataSourceOptions } from 'typeorm'
 
 const pgDataSourceOptions: DataSourceOptions = {
   type: 'postgres',
@@ -16,4 +16,3 @@ export const dataSourceOptions: DataSourceOptions = {
   ],
   synchronize: true
 }
-export const PostgresDataSource = new DataSource(dataSourceOptions)

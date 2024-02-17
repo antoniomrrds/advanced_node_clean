@@ -1,11 +1,11 @@
 import './config/module-alias'
 import 'reflect-metadata'
 
-import { PostgresDataSource } from '@/infrastructure/repositories/postgres'
+import { PgConnection } from '@/infrastructure/repositories/postgres'
 import { portServer } from '@/main/config/env'
 import { app } from '@/main/config'
 
-PostgresDataSource.initialize()
+PgConnection.getInstance().connect()
   .then(_ =>
     app.listen(portServer, () => console.log(`🚀Server running at http://localhost:${portServer}`))
   ).catch(console.error)

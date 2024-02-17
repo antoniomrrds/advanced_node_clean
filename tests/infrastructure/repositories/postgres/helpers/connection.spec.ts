@@ -15,7 +15,7 @@ function getDataSourceOptions (): DataSourceOptions {
   }
 }
 
-jest.mock('@/infrastructure/repositories/postgres/connection', () => ({
+jest.mock('@/infrastructure/repositories/postgres/config', () => ({
   dataSourceOptions: getDataSourceOptions()
 }))
 

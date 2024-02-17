@@ -3,17 +3,19 @@ import { Express } from 'express'
 import { sign } from 'jsonwebtoken'
 import request from 'supertest'
 
-import { PgUser, PostgresDataSource } from '@/infrastructure/repositories/postgres'
+import { PgConnection, PgUser } from '@/infrastructure/repositories/postgres'
 import { PgTestHelper } from '@/tests/infrastructure/repositories/postgres'
 import { jwtSecret } from '@/main/config/env'
 
 describe('User Routes', () => {
   let app: Express
   let pgUserRepo: Repository<PgUser>
+  let connection: PgConnection
+
   beforeAll(async () => {
     await PgTestHelper.connect([PgUser])
-    pgUserRepo = PgTestHelper.connection.getRepository(PgUser)
-    jest.spyOn(PostgresDataSource, 'getRepository').mockReturnValue(pgUserRepo)
+    connection = PgConnection.getInstance()
+    pgUserRepo = connection.getRepository(PgUser)
   })
 
   beforeEach(async () => {
@@ -22,7 +24,7 @@ describe('User Routes', () => {
   })
 
   afterAll(async () => {
-    await PgTestHelper.disconnect()
+    await connection.disconnect()
   })
   describe('DELETE /api/users/picture', () => {
     it('Should return 403 if no authorization header is present', async () => {

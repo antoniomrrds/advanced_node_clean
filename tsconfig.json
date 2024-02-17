@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "incremental": true,
     "outDir": "dist",
     "rootDirs": [
       "src",

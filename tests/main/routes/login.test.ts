@@ -1,21 +1,26 @@
 import request from 'supertest'
+import { Express } from 'express'
 
 import { PgTestHelper } from '@/tests/infrastructure/repositories/postgres'
-import { PgUser, PostgresDataSource } from '@/infrastructure/repositories/postgres'
+import { PgConnection, PgUser } from '@/infrastructure/repositories/postgres'
 import { UnauthorizedError } from '@/presentation/errors'
-import { Express } from 'express'
 
 describe('Login Routes', () => {
   let app: Express
-
-  beforeEach(async () => {
-    app = (await import('@/main/config')).app
-  })
+  let connection: PgConnection
 
   beforeAll(async () => {
     await PgTestHelper.connect([PgUser])
-    const pgUserRepo = PgTestHelper.connection.getRepository(PgUser)
-    jest.spyOn(PostgresDataSource, 'getRepository').mockReturnValue(pgUserRepo)
+    connection = PgConnection.getInstance()
+  })
+
+  beforeEach(async () => {
+    app = (await import('@/main/config')).app
+    PgTestHelper.restore()
+  })
+
+  afterAll(async () => {
+    await connection.disconnect()
   })
 
   describe('POST /login', () => {
