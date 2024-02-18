@@ -8,15 +8,16 @@ export class DbTransactionControllerDecorator {
 
   ) {}
 
-  async perform (httpRequest: any): Promise<HttpResponse | undefined> {
+  async perform (httpRequest: any): Promise<HttpResponse> {
     await this.db.openTransaction()
     try {
       const httpResponse = await this.decoratee.perform(httpRequest)
       await this.db.commit()
-      await this.db.closeTransaction()
       return httpResponse
     } catch (error) {
       await this.db.rollback()
+      throw error
+    } finally {
       await this.db.closeTransaction()
     }
   }
