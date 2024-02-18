@@ -1,17 +1,22 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { DbTransactionControllerDecorator } from '@/presentation/decorators'
 import { DBTransaction } from '@/presentation/ports'
+import { Controller } from '@/presentation/controllers'
+
 import { MockProxy, mock } from 'jest-mock-extended'
 
 describe('DbTransactionControllerDecorator', () => {
   let db: MockProxy<DBTransaction>
   let sut: DbTransactionControllerDecorator
+  let decoratee: MockProxy<Controller>
 
   beforeAll(() => {
     db = mock()
+    decoratee = mock()
   })
 
   beforeEach(() => {
-    sut = new DbTransactionControllerDecorator(db)
+    sut = new DbTransactionControllerDecorator(decoratee, db)
   })
 
   it('Should open transaction', async () => {
@@ -19,5 +24,11 @@ describe('DbTransactionControllerDecorator', () => {
 
     expect(db.openTransaction).toHaveBeenCalled()
     expect(db.openTransaction).toHaveBeenCalledWith()
+  })
+  it('Should execute decoratee', async () => {
+    await sut.perform({ any: 'any' })
+
+    expect(decoratee.perform).toHaveBeenCalled()
+    expect(decoratee.perform).toHaveBeenCalledWith({ any: 'any' })
   })
 })
