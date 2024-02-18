@@ -1,7 +1,8 @@
 import { dataSourceOptions, TransactionNotFoundError, ConnectionNotFoundError } from '@/infrastructure/repositories/postgres'
+import { DbTransaction } from '@/presentation/ports'
 import { DataSource, EntityTarget, ObjectLiteral, QueryRunner, Repository } from 'typeorm'
 
-export class PgConnection {
+export class PgConnection implements DbTransaction {
   private static instance?: PgConnection
   private connection?: DataSource
   private query?: QueryRunner

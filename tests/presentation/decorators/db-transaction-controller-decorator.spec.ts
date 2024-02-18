@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { DbTransactionControllerDecorator } from '@/presentation/decorators'
-import { DBTransaction } from '@/presentation/ports'
+import { DbTransaction } from '@/presentation/ports'
 import { Controller } from '@/presentation/controllers'
 
 import { MockProxy, mock } from 'jest-mock-extended'
 
 describe('DbTransactionControllerDecorator', () => {
-  let db: MockProxy<DBTransaction>
+  let db: MockProxy<DbTransaction>
   let sut: DbTransactionControllerDecorator
   let decoratee: MockProxy<Controller>
 
@@ -35,22 +35,22 @@ describe('DbTransactionControllerDecorator', () => {
     expect(decoratee.perform).toHaveBeenCalled()
     expect(decoratee.perform).toHaveBeenCalledWith({ any: 'any' })
   })
-  it('Should call commit and close transaction on success', async () => {
+  it('Should call commitTransaction and close transaction on success', async () => {
     await sut.perform({ any: 'any' })
 
     expect(db.closeTransaction).toHaveBeenCalled()
     expect(db.closeTransaction).toHaveBeenCalledWith()
-    expect(db.rollback).not.toHaveBeenCalled()
-    expect(db.commit).toHaveBeenCalled()
-    expect(db.commit).toHaveBeenCalledWith()
+    expect(db.rollbackTransaction).not.toHaveBeenCalled()
+    expect(db.commitTransaction).toHaveBeenCalled()
+    expect(db.commitTransaction).toHaveBeenCalledWith()
   })
-  it('Should call roolback and close transaction on failure', async () => {
+  it('Should call rollbackTransaction and close transaction on failure', async () => {
     decoratee.perform.mockRejectedValueOnce(new Error('decoratee_error'))
 
     await sut.perform({ any: 'any' }).catch(() => {
-      expect(db.commit).not.toHaveBeenCalled()
-      expect(db.rollback).toHaveBeenCalled()
-      expect(db.rollback).toHaveBeenCalledWith()
+      expect(db.commitTransaction).not.toHaveBeenCalled()
+      expect(db.rollbackTransaction).toHaveBeenCalled()
+      expect(db.rollbackTransaction).toHaveBeenCalledWith()
       expect(db.closeTransaction).toHaveBeenCalled()
       expect(db.closeTransaction).toHaveBeenCalledWith()
     })
