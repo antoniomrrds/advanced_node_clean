@@ -36,7 +36,19 @@ describe('DbTransactionControllerDecorator', () => {
 
     expect(db.closeTransaction).toHaveBeenCalled()
     expect(db.closeTransaction).toHaveBeenCalledWith()
+    expect(db.rollback).not.toHaveBeenCalled()
     expect(db.commit).toHaveBeenCalled()
     expect(db.commit).toHaveBeenCalledWith()
+  })
+  it('Should call roolback and close transaction on failure', async () => {
+    decoratee.perform.mockRejectedValueOnce(new Error('decoratee_error'))
+
+    await sut.perform({ any: 'any' })
+
+    expect(db.commit).not.toHaveBeenCalled()
+    expect(db.rollback).toHaveBeenCalled()
+    expect(db.rollback).toHaveBeenCalledWith()
+    expect(db.closeTransaction).toHaveBeenCalled()
+    expect(db.closeTransaction).toHaveBeenCalledWith()
   })
 })
