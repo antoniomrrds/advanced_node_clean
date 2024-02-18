@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { DbTransactionControllerDecorator } from '@/presentation/decorators'
+import { DbTransactionController } from '@/presentation/decorators'
 import { DbTransaction } from '@/presentation/ports'
 import { Controller } from '@/presentation/controllers'
 
@@ -7,7 +7,7 @@ import { MockProxy, mock } from 'jest-mock-extended'
 
 describe('DbTransactionControllerDecorator', () => {
   let db: MockProxy<DbTransaction>
-  let sut: DbTransactionControllerDecorator
+  let sut: DbTransactionController
   let decoratee: MockProxy<Controller>
 
   beforeAll(() => {
@@ -17,7 +17,7 @@ describe('DbTransactionControllerDecorator', () => {
   })
 
   beforeEach(() => {
-    sut = new DbTransactionControllerDecorator(decoratee, db)
+    sut = new DbTransactionController(decoratee, db)
   })
 
   it('Should extend Controller', () => {

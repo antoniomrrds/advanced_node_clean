@@ -1,7 +1,7 @@
 import { Controller } from '@/presentation/controllers'
 import { DbTransaction, HttpResponse } from '@/presentation/ports'
 
-export class DbTransactionControllerDecorator extends Controller {
+export class DbTransactionController extends Controller {
   constructor (
     private readonly decoratee: Controller,
     private readonly db: DbTransaction

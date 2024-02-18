@@ -1,2 +1,2 @@
-export * from './repositories/postgres'
 export * from './gateways'
+export * from './repositories'
